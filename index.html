@@ -1,7 +1,118 @@
 <!DOCTYPE html>
-<html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR.js A-Frame Dynamic Location</title>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script type="text/javascript" src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/three.js/build/ar-threex-location-only.js"></script>
+    <script type="text/javascript" src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
+    
+    <script>
+      // Function to dynamically create spheres inside entities
+      function createSpheres() {
+          const spheresData = [
+              { color: "red", lat: 39.479866, lon: -8.337769, movement: "side", speed: 0.0001 }, 
+              { color: "blue", lat: 39.479832, lon: -8.337651, movement: "spin", speed: 0.001 },
+              { color: "green", lat: 39.479923, lon: -8.337721, movement: "side", speed: 0.0001 }
+          ];
+
+          const scene = document.querySelector("a-scene");
+
+          spheresData.forEach((data) => {
+              const entity = document.createElement("a-entity");
+              entity.setAttribute("cursor", "rayOrigin:mouse");
+
+              const sphere = document.createElement("a-sphere");
+              sphere.setAttribute("gps-new-entity-place", {latitude: data.lat, longitude: data.lon});
+              sphere.setAttribute("radius", "1.25");
+              sphere.setAttribute("color", data.color);
+              sphere.setAttribute("shadow", "");
+              sphere.setAttribute("show-plane", {color: data.color});
+
+              // Only add movement if the sphere has a movement type
+              if (data.movement) {
+                  sphere.setAttribute("dynamic-movement", {type: data.movement, speed: data.speed});
+              }
+
+              entity.appendChild(sphere);
+              scene.appendChild(entity);
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", createSpheres);
+      // Component for dynamic movement
+      AFRAME.registerComponent('dynamic-movement', {
+        schema: {
+          type: { type: 'string' }, // "side", "spin"
+          speed: { type: 'number', default: 0.00001 } // Speed of movement
+        },
+        init() {
+          this.originalLat = this.el.getAttribute('gps-new-entity-place').latitude;
+          this.originalLon = this.el.getAttribute('gps-new-entity-place').longitude;
+          this.angle = 0;
+        },
+        tick(time, timeDelta) {
+          const speed = this.data.speed;
+          if (this.data.type === "side") {
+            // Move side to side by modifying longitude
+            const offset = Math.sin(time / 1000) * speed;
+            this.el.setAttribute('gps-new-entity-place', {
+              latitude: this.originalLat,
+              longitude: this.originalLon + offset
+            });
+          } else if (this.data.type === "spin") {
+            // Move in a circular path around the camera
+            this.angle += speed * timeDelta;
+            const radius = 0.00005; // Distance from center
+            const newLat = this.originalLat + Math.cos(this.angle) * radius;
+            const newLon = this.originalLon + Math.sin(this.angle) * radius;
+            this.el.setAttribute('gps-new-entity-place', { latitude: newLat, longitude: newLon });
+          }
+        }
+      });
+
+      // Component to show a plane on click
+      AFRAME.registerComponent('show-plane', {
+        schema: {
+          color: { type: 'string', default: 'white' } // Default plane color
+        },
+        init() {
+          this.el.addEventListener('click', this.showPlane.bind(this)); // Click event
+        },
+        showPlane() {
+          const camera = document.querySelector('[gps-new-camera]');
+
+          // Check if a plane already exists
+          if (document.querySelector('#infoPlane')) return; // Do nothing if a plane is present
+
+          // Create a new plane
+          const plane = document.createElement('a-plane');
+          plane.setAttribute('position', '0 0 -2'); // In front of the camera
+          plane.setAttribute('width', '2');
+          plane.setAttribute('height', '1');
+          plane.setAttribute('color', this.data.color);
+          plane.setAttribute('material', 'opacity: 0.8; transparent: true');
+          plane.setAttribute('id', 'infoPlane'); // Unique ID to track the plane
+          plane.setAttribute('look-at', '[gps-new-camera]'); // Make it face the camera
+
+          // Clicking the plane itself removes it
+          plane.addEventListener('click', () => {
+            camera.removeChild(plane);
+          });
+
+          // Add the plane to the camera
+          camera.appendChild(plane);
+        }
+      });
+
+      
+    </script>
+  </head>
+  <body>
+    <a-scene vr-mode-ui="enabled: false" arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false">
+      <!-- GPS Camera -->
+      <a-camera gps-new-camera="gpsMinDistance: 5"></a-camera>
+    </a-scene>
+  </body>
 </html>
