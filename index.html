@@ -9,33 +9,39 @@
     <script type="text/javascript" src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
 
     <script>
-      function createSpheres(userLat, userLon) {
-          const spheresData = [
-              { color: "red", distance: 5, speed: 0.0005 },   // 5m from user
-              { color: "green", distance: 10, speed: 0.0003 }, // 10m from user
-              { color: "blue", distance: 15, speed: 0.0002 }   // 15m from user
+      function createPlanets(userLat, userLon) {
+          const planets = [
+              { name: "Sun", color: "yellow", distance: 0, radius: 3, speed: 0 },
+              { name: "Mercury", color: "gray", distance: 5, radius: 0.5, speed: 0.0008 },
+              { name: "Venus", color: "yellow", distance: 8, radius: 1, speed: 0.0006 },
+              { name: "Earth", color: "blue", distance: 12, radius: 1.2, speed: 0.0005 },
+              { name: "Mars", color: "red", distance: 16, radius: 0.8, speed: 0.0004 },
+              { name: "Jupiter", color: "orange", distance: 24, radius: 2, speed: 0.0003 },
+              { name: "Saturn", color: "goldenrod", distance: 30, radius: 1.8, speed: 0.0002 },
+              { name: "Uranus", color: "lightblue", distance: 38, radius: 1.5, speed: 0.00015 },
+              { name: "Neptune", color: "darkblue", distance: 45, radius: 1.4, speed: 0.0001 }
           ];
 
           const scene = document.querySelector("a-scene");
 
-          spheresData.forEach((data) => {
-              const coords = computeOffset(userLat, userLon, data.distance, 0); // Start at 0° angle
+          planets.forEach((planet) => {
+              const coords = computeOffset(userLat, userLon, planet.distance, 0); // Start at 0° angle
 
               const entity = document.createElement("a-entity");
               entity.setAttribute("cursor","rayOrigin:mouse");
 
               const sphere = document.createElement("a-sphere");
               sphere.setAttribute("gps-new-entity-place", { latitude: coords.lat, longitude: coords.lon });
-              sphere.setAttribute("radius", 1.25);
-              sphere.setAttribute("color", data.color);
+              sphere.setAttribute("radius", planet.radius);
+              sphere.setAttribute("color", planet.color);
               sphere.setAttribute("shadow", "");
-              sphere.setAttribute("show-plane", { color: data.color });
+              sphere.setAttribute("show-plane", { color: planet.color });
               sphere.setAttribute("dynamic-movement", { 
                   type: "spin", 
-                  speed: data.speed, 
+                  speed: planet.speed, 
                   originLat: userLat, 
                   originLon: userLon, 
-                  distance: data.distance 
+                  distance: planet.distance 
               });
 
               entity.appendChild(sphere);
@@ -51,13 +57,13 @@
           return { lat: lat + deltaLat, lon: lon + deltaLon };
       }
 
-      function initSpheres() {
+      function initPlanets() {
           if (navigator.geolocation) {
               navigator.geolocation.getCurrentPosition(
                   (position) => {
                       const userLat = position.coords.latitude;
                       const userLon = position.coords.longitude;
-                      createSpheres(userLat, userLon); // Create spheres around user’s initial position
+                      createPlanets(userLat, userLon); // Create spheres around user’s initial position
                   },
                   (error) => console.error("Error getting location:", error),
                   { enableHighAccuracy: true }
@@ -67,7 +73,7 @@
           }
       }
 
-      document.addEventListener("DOMContentLoaded", initSpheres);
+      document.addEventListener("DOMContentLoaded", initPlanets);
 
       // Component for spinning movement
       AFRAME.registerComponent('dynamic-movement', {
