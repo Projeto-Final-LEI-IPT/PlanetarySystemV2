@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR.js A-Frame Solar System</title>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script type="text/javascript" src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/three.js/build/ar-threex-location-only.js"></script>
+    <script type="text/javascript" src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
+
+    <script>
+      function createPlanets(userLat, userLon) {
+          const planets = [
+              { name: "Sun", color: "yellow", distance: 0, radius: 3, speed: 0 },
+              { name: "Mercury", color: "gray", distance: 5, radius: 0.5, speed: 0.0008 },
+              { name: "Venus", color: "yellow", distance: 8, radius: 1, speed: 0.0006 },
+              { name: "Earth", color: "blue", distance: 12, radius: 1.2, speed: 0.0005 },
+              { name: "Mars", color: "red", distance: 16, radius: 0.8, speed: 0.0004 },
+              { name: "Jupiter", color: "orange", distance: 24, radius: 2, speed: 0.0003 },
+              { name: "Saturn", color: "goldenrod", distance: 30, radius: 1.8, speed: 0.0002 },
+              { name: "Uranus", color: "lightblue", distance: 38, radius: 1.5, speed: 0.00015 },
+              { name: "Neptune", color: "darkblue", distance: 45, radius: 1.4, speed: 0.0001 }
+          ];
+
+          const scene = document.querySelector("a-scene");
+
+          planets.forEach((planet) => {
+              const coords = computeOffset(userLat, userLon, planet.distance, 0);
+
+              const sphere = document.createElement("a-sphere");
+              sphere.setAttribute("gps-new-entity-place", { latitude: coords.lat, longitude: coords.lon });
+              sphere.setAttribute("radius", planet.radius);
+              sphere.setAttribute("color", planet.color);
+              sphere.setAttribute("shadow", "");
+              sphere.setAttribute("show-plane", { color: planet.color });
+
+              if (planet.speed > 0) {
+                  sphere.setAttribute("dynamic-movement", { 
+                      type: "spin", 
+                      speed: planet.speed, 
+                      originLat: userLat, 
+                      originLon: userLon, 
+                      distance: planet.distance 
+                  });
+
+                  createOrbitRing(userLat, userLon, planet.distance);
+              }
+
+              entity.appendChild(sphere);
+              scene.appendChild(entity);
+          });
+
+          // Criar o Sol na posição do usuário
+          createSun(userLat, userLon);
+      }
+
+      function computeOffset(lat, lon, distance, angle) {
+          const earthRadius = 6378137;
+          const deltaLat = (distance * Math.cos(angle * Math.PI / 180)) / earthRadius * (180 / Math.PI);
+          const deltaLon = (distance * Math.sin(angle * Math.PI / 180)) / (earthRadius * Math.cos(lat * Math.PI / 180)) * (180 / Math.PI);
+          return { lat: lat + deltaLat, lon: lon + deltaLon };
+      }
+
+      function createOrbitRing(userLat, userLon, distance) {
+            const scene = document.querySelector("a-scene");
+
+            // A órbita é gerada em torno da posição do Sol
+            const coords = computeOffset(userLat, userLon, distance, 0);
+
+            const orbitRing = document.createElement("a-ring");
+            orbitRing.setAttribute("gps-new-entity-place", `latitude: ${userLat}; longitude: ${userLon}`);
+            orbitRing.setAttribute("radius-inner", distance - 0.3); 
+            orbitRing.setAttribute("radius-outer", distance + 0.3); // Ajusta o tamanho do anel para corresponder à distância
+            orbitRing.setAttribute("color", "white");
+            orbitRing.setAttribute("rotation", "-90 0 0"); // Deitado para formar um círculo
+            orbitRing.setAttribute("material", "opacity: 0.5; transparent: true");
+            scene.appendChild(orbitRing);
+        }
+
+        // Criar o Sol
+      function createSun(userLat, userLon) {
+          const scene = document.querySelector("a-scene");
+          const sun = document.createElement("a-sphere");
+          sun.setAttribute("gps-new-entity-place", { latitude: userLat, longitude: userLon });
+          sun.setAttribute("radius", 2);
+          sun.setAttribute("color", "yellow");
+          sun.setAttribute("shadow", "");
+          scene.appendChild(sun);
+      }
+
+        function initPlanets() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                  (position) => {
+                      const userLat = position.coords.latitude;
+                      const userLon = position.coords.longitude;
+                      createPlanets(userLat, userLon); // Create spheres around user’s initial position
+                  },
+                  (error) => console.error("Error getting location:", error),
+                  { enableHighAccuracy: true }
+              );
+          } else {
+              console.error("Geolocation is not supported by this browser.");
+          }
+      }
+
+      document.addEventListener("DOMContentLoaded", initPlanets);
+
+      // Component for spinning movement
+      AFRAME.registerComponent('dynamic-movement', {
+        schema: {
+          type: { type: 'string' }, // "spin"
+          speed: { type: 'number', default: 0.0001 }, // Speed of orbit
+          originLat: { type: 'number' }, // User's initial latitude
+          originLon: { type: 'number' }, // User's initial longitude
+          distance: { type: 'number' } // Orbit radius
+        },
+        init() {
+          this.angle = 0;
+        },
+        tick(time, timeDelta) {
+          if (this.data.type === "spin") {
+            this.angle += this.data.speed * timeDelta;
+            const newCoords = computeOffset(this.data.originLat, this.data.originLon, this.data.distance, this.angle * (180 / Math.PI));
+            this.el.setAttribute('gps-new-entity-place', { latitude: newCoords.lat, longitude: newCoords.lon });
+          }
+        }
+      });
+
+      // Component to show a plane on click
+      AFRAME.registerComponent('show-plane', {
+        schema: {
+          color: { type: 'string', default: 'white' }
+        },
+        init() {
+          this.el.addEventListener('click', this.showPlane.bind(this));
+        },
+        showPlane() {
+          const camera = document.querySelector('[gps-new-camera]');
+
+          if (document.querySelector('#infoPlane')) return;
+
+          const plane = document.createElement('a-plane');
+          plane.setAttribute("position", { x: 0, y: 0, z: -2 });
+          plane.setAttribute("width", 2);
+          plane.setAttribute("height", 1);
+          plane.setAttribute("color", this.data.color);
+          plane.setAttribute("material", { opacity: 0.8, transparent: true });
+          plane.setAttribute("id", "infoPlane");
+          plane.setAttribute("look-at", "[gps-new-camera]");
+
+          plane.addEventListener("click", () => {
+            camera.removeChild(plane);
+          });
+
+          camera.appendChild(plane);
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <a-scene vr-mode-ui="enabled: false" arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false">
+      <!-- GPS Camera -->
+      <a-camera gps-new-camera="gpsMinDistance: 5"></a-camera>
+    </a-scene>
+  </body>
+</html>
