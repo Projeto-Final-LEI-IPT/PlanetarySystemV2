@@ -27,6 +27,9 @@
           planets.forEach((planet) => {
               const coords = computeOffset(userLat, userLon, planet.distance, 0);
 
+              const entity = document.createElement("a-entity");
+              entity.setAttribute("cursor","rayOrigin:mouse");
+
               const sphere = document.createElement("a-sphere");
               sphere.setAttribute("gps-new-entity-place", { latitude: coords.lat, longitude: coords.lon });
               sphere.setAttribute("radius", planet.radius);
