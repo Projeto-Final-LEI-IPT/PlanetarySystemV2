@@ -33,7 +33,6 @@
               const sphere = document.createElement("a-sphere");
               sphere.setAttribute("gps-new-entity-place", { latitude: coords.lat, longitude: coords.lon });
               sphere.setAttribute("radius", planet.radius);
-              sphere.setAttribute("color", planet.color);
               sphere.setAttribute("shadow", "");
               sphere.setAttribute("show-plane", { color: planet.color });
 
@@ -49,6 +48,7 @@
 
               entity.appendChild(sphere);
               scene.appendChild(entity);
+              console.log("planeta adicionado com sucesso");
           });
       }
 
