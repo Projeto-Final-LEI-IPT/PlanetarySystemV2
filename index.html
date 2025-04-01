@@ -36,7 +36,9 @@
               sphere.setAttribute("color", planet.color);
               sphere.setAttribute("shadow", "");
               sphere.setAttribute("show-plane", { color: planet.color });
+
               sphere.setAttribute("material", {src: planet.image, shader: "standard"});
+
               sphere.setAttribute("dynamic-movement", { 
                   type: "spin", 
                   speed: planet.speed, 
