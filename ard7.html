@@ -91,8 +91,8 @@ function createOrbitRing(userLat, userLon, orbitDistance, radius) {
 
     const orbitRing = document.createElement("a-ring");
     orbitRing.setAttribute("gps-new-entity-place", {latitude: userLat, longitude: userLon});
-    orbitRing.setAttribute("radius-inner", visualRadius + radius);
-    orbitRing.setAttribute("radius-outer", visualRadius + radius*2);
+    orbitRing.setAttribute("radius-inner", visualRadius + radius*2);
+    orbitRing.setAttribute("radius-outer", visualRadius + radius*4);
     orbitRing.setAttribute("color", "white");
     orbitRing.setAttribute("rotation", "-90 0 0");
     orbitRing.setAttribute("material", "opacity: 0.4; transparent: true");
