@@ -64,21 +64,42 @@
           return { lat: lat + deltaLat, lon: lon + deltaLon };
       }
 
-      function createOrbitRing(userLat, userLon, distance) {
-            const scene = document.querySelector("a-scene");
+      function createOrbitRing(userLat, userLon, orbitDistance) {
+    const scene = document.querySelector("a-scene");
 
-            // A órbita é gerada em torno da posição do Sol
-            const coords = computeOffset(userLat, userLon, distance, 0);
+    // Calcula as coordenadas reais do planeta na órbita
+    const planetCoords = computeOffset(userLat, userLon, orbitDistance, 0);
 
-            const orbitRing = document.createElement("a-ring");
-            orbitRing.setAttribute("gps-new-entity-place", `latitude: ${userLat}; longitude: ${userLon}`);
-            orbitRing.setAttribute("radius-inner", distance - 0.3); 
-            orbitRing.setAttribute("radius-outer", distance + 0.3); // Ajusta o tamanho do anel para corresponder à distância
-            orbitRing.setAttribute("color", "white");
-            orbitRing.setAttribute("rotation", "-90 0 0"); // Deitado para formar um círculo
-            orbitRing.setAttribute("material", "opacity: 0.5; transparent: true");
-            scene.appendChild(orbitRing);
-        }
+    // Cria uma entidade temporária para medir a distância visual no AR
+    const tempEntity = document.createElement("a-entity");
+    tempEntity.setAttribute("gps-new-entity-place", `latitude: ${planetCoords.lat}; longitude: ${planetCoords.lon}`);
+    scene.appendChild(tempEntity);
+
+    // Espera o AR.js calcular as posições
+    tempEntity.addEventListener('gps-entity-place-update-position', () => {
+        const sunPosition = new THREE.Vector3();
+        const planetPosition = new THREE.Vector3();
+
+        scene.object3D.localToWorld(sunPosition.set(0,0,0)); // Posição do Sol (centro da cena)
+        tempEntity.object3D.getWorldPosition(planetPosition); // Posição do planeta
+
+        const visualRadius = sunPosition.distanceTo(planetPosition); // Distância visual real no AR
+
+        // Agora cria o anel da órbita com o tamanho certo
+        const orbitRing = document.createElement("a-ring");
+        orbitRing.setAttribute("gps-new-entity-place", `latitude: ${userLat}; longitude: ${userLon}`);
+        orbitRing.setAttribute("radius-inner", visualRadius - 0.2);
+        orbitRing.setAttribute("radius-outer", visualRadius + 0.2);
+        orbitRing.setAttribute("color", "white");
+        orbitRing.setAttribute("rotation", "-90 0 0");
+        orbitRing.setAttribute("material", "opacity: 0.4; transparent: true");
+
+        scene.appendChild(orbitRing);
+
+        // Remove a entidade temporária
+        tempEntity.parentNode.removeChild(tempEntity);
+    });
+}
 
         // Criar o Sol
       function createSun(userLat, userLon) {
