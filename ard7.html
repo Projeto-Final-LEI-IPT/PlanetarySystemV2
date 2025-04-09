@@ -37,7 +37,7 @@
               sphere.setAttribute("shadow", "");
               sphere.setAttribute("show-plane", { color: planet.color });
 
-              
+              if(planet.speed > 0){
                   sphere.setAttribute("dynamic-movement", { 
                       type: "spin", 
                       speed: planet.speed, 
@@ -46,8 +46,8 @@
                       distance: planet.distance 
                   });
 
-                  createOrbitRing(userLat, userLon, planet.distance);
-              
+                  createOrbitRing(userLat, userLon, planet.distance, planet.radius);
+              }
 
               entity.appendChild(sphere);
               scene.appendChild(entity);
@@ -82,7 +82,7 @@
 }
 
 
-function createOrbitRing(userLat, userLon, orbitDistance) {
+function createOrbitRing(userLat, userLon, orbitDistance, radius) {
     const scene = document.querySelector("a-scene");
 
     const planetCoords = computeOffset(userLat, userLon, orbitDistance, 0);
@@ -91,8 +91,8 @@ function createOrbitRing(userLat, userLon, orbitDistance) {
 
     const orbitRing = document.createElement("a-ring");
     orbitRing.setAttribute("gps-new-entity-place", {latitude: userLat, longitude: userLon});
-    orbitRing.setAttribute("radius-inner", visualRadius + 1);
-    orbitRing.setAttribute("radius-outer", visualRadius + 2);
+    orbitRing.setAttribute("radius-inner", visualRadius + radius/2);
+    orbitRing.setAttribute("radius-outer", visualRadius + radius);
     orbitRing.setAttribute("color", "white");
     orbitRing.setAttribute("rotation", "-90 0 0");
     orbitRing.setAttribute("material", "opacity: 0.4; transparent: true");
