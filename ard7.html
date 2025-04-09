@@ -74,8 +74,8 @@ function createOrbitRing(userLat, userLon, orbitDistance) {
         orbitRing.setAttribute("radius-inner", orbitDistance - 0.3);
         orbitRing.setAttribute("radius-outer", orbitDistance + 0.3);
         orbitRing.setAttribute("color", "white");
-        orbitRing.setAttribute("rotation", "90 0 0");
-        orbitRing.setAttribute("material", {opacity: 0.4, transparent: true});
+        orbitRing.setAttribute("rotation", "-90 0 0");
+        orbitRing.setAttribute("material", { opacity: 0.4, transparent: true});
 
         entity.appendChild(orbitRing);
         scene.appendChild(entity);
