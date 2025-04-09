@@ -67,34 +67,19 @@
 function createOrbitRing(userLat, userLon, orbitDistance) {
     const scene = document.querySelector("a-scene");
 
-    const planetCoords = computeOffset(userLat, userLon, orbitDistance, 0);
-
-    const tempEntity = document.createElement("a-entity");
-    tempEntity.setAttribute("gps-new-entity-place", {latitude: planetCoords.lat, longitude: planetCoords.lon});
-    scene.appendChild(tempEntity);
-
-    // Dá tempo para o AR.js posicionar os elementos
-    setTimeout(() => {
-        const sunPosition = new THREE.Vector3();
-        const planetPosition = new THREE.Vector3();
-
-        scene.object3D.localToWorld(sunPosition.set(0,0,0)); // Posição do centro (Sol)
-        tempEntity.object3D.getWorldPosition(planetPosition); // Posição do planeta
-
-        const visualRadius = sunPosition.distanceTo(planetPosition);
-
+    const entity = document.createElement("a-entity");
+   
         const orbitRing = document.createElement("a-ring");
         orbitRing.setAttribute("gps-new-entity-place", {latitude: userLat, longitude: userLon});
-        orbitRing.setAttribute("radius-inner", visualRadius - 0.2);
-        orbitRing.setAttribute("radius-outer", visualRadius + 0.2);
+        orbitRing.setAttribute("radius-inner", orbitDistance - 0.3);
+        orbitRing.setAttribute("radius-outer", orbitDistance + 0.3);
         orbitRing.setAttribute("color", "white");
-        orbitRing.setAttribute("rotation", "-90 0 0");
+        orbitRing.setAttribute("rotation", "90 0 0");
         orbitRing.setAttribute("material", {opacity: 0.4, transparent: true});
 
-        scene.appendChild(orbitRing);
-
-        tempEntity.parentNode.removeChild(tempEntity);
-    }, 500); // meio segundo
+        entity.appendChild(sphere);
+        scene.appendChild(entity);
+    
 }
 
 
