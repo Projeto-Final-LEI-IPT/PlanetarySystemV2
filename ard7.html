@@ -64,22 +64,40 @@
           return { lat: lat + deltaLat, lon: lon + deltaLon };
       }
 
+      function computeDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Raio da Terra em metros
+    const toRad = (value) => value * Math.PI / 180;
+
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distância em metros
+}
+
+
 function createOrbitRing(userLat, userLon, orbitDistance) {
     const scene = document.querySelector("a-scene");
 
-    const entity = document.createElement("a-entity");
-   
-        const orbitRing = document.createElement("a-ring");
-        orbitRing.setAttribute("gps-new-entity-place", {latitude: userLat, longitude: userLon});
-        orbitRing.setAttribute("radius-inner", orbitDistance - 0.3);
-        orbitRing.setAttribute("radius-outer", orbitDistance + 0.3);
-        orbitRing.setAttribute("color", "white");
-        orbitRing.setAttribute("rotation", "-90 0 0");
-        orbitRing.setAttribute("material", { opacity: 0.4, transparent: true});
+    const planetCoords = computeOffset(userLat, userLon, orbitDistance, 0);
 
-        entity.appendChild(orbitRing);
-        scene.appendChild(entity);
-    
+    const visualRadius = computeDistance(userLat, userLon, planetCoords.lat, planetCoords.lon);
+
+    const orbitRing = document.createElement("a-ring");
+    orbitRing.setAttribute("gps-new-entity-place", {latitude: userLat, longitude: userLon});
+    orbitRing.setAttribute("radius-inner", visualRadius - 0.3);
+    orbitRing.setAttribute("radius-outer", visualRadius + 0.3);
+    orbitRing.setAttribute("color", "white");
+    orbitRing.setAttribute("rotation", "-90 0 0");
+    orbitRing.setAttribute("material", "opacity: 0.4; transparent: true");
+
+    scene.appendChild(orbitRing);
 }
 
 
