@@ -65,7 +65,7 @@
       }
 
       function computeDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371000; // Raio da Terra em metros
+    const R = 6378137; // Raio da Terra em metros
     const toRad = (value) => value * Math.PI / 180;
 
     const dLat = toRad(lat2 - lat1);
