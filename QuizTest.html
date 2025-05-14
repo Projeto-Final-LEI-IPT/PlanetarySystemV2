@@ -58,7 +58,7 @@
     this.quizPlane = null;
   },
   tick() {
-    if (this.completed || this.data.triggered) return;
+    if (this.completed) return;
 
     const camera = document.querySelector('[gps-new-camera]');
     const camCoords = camera.components['gps-new-camera'].currentCoords;
