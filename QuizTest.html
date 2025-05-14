@@ -52,7 +52,6 @@
     triggered: { type: 'boolean', default: false }
   },
   init() {
-    console.log("Initialized proximity-check", this.el.getAttribute('name'));
     this.questions = JSON.parse(this.data.questions);
     this.currentQuestionIndex = 0;
     this.completed = false;
@@ -84,6 +83,7 @@
     }
   },
   showNextQuestion() {
+    
     console.log("Displaying question", this.questions[this.currentQuestionIndex]);
     const camera = document.querySelector('[gps-new-camera]');
     const questionData = this.questions[this.currentQuestionIndex];
@@ -96,12 +96,18 @@
       this.completed = true;
       return;
     }
+    
+    const screenRatio = window.innerWidth / window.innerHeight;
+    const baseWidth = 1.8; // largura padrão
+    const baseHeight = 2.2; // altura padrão
 
+    const planeWidth = baseWidth * (screenRatio < 1 ? screenRatio : 1);
+    const planeHeight = baseHeight;
     // Create quiz UI
     const plane = document.createElement('a-plane');
     plane.setAttribute('position', { x: 0, y: 1.5, z: -1 });
-    plane.setAttribute('width', 2);
-    plane.setAttribute('height', 10);
+    plane.setAttribute('width', planeWidth);
+    plane.setAttribute('height', planeHeight);
     plane.setAttribute('color', '#333');
     plane.setAttribute('material', { opacity: 0.95, transparent: true });
     plane.setAttribute('id', 'quizPlane');
@@ -111,16 +117,18 @@
     question.setAttribute('value', questionData.question);
     question.setAttribute('color', '#fff');
     question.setAttribute('align', 'center');
-    question.setAttribute('position', '0 0.6 0');
+    question.setAttribute('position', 0 (planeHeight / 2 - 0.4) 0);
     question.setAttribute('width', 1.8);
     plane.appendChild(question);
 
+    const startY = planeHeight / 2 - 0.9;
+    const spacingY = 0.45;
     questionData.answers.forEach((answer, i) => {
       const btn = document.createElement('a-plane');
       btn.setAttribute('color', '#FFF');
       btn.setAttribute('width', 1.6);
       btn.setAttribute('height', 0.3);
-      btn.setAttribute('position', { x: 0, y: 0.3 - i * 0.35, z: 0.01 });
+      btn.setAttribute('position', { x: 0, y: startY - i * spacingY, z: 0.01 });
       btn.setAttribute('material', { opacity: 0.8 });
       btn.setAttribute('class', 'quiz-option');
 
