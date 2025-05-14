@@ -66,14 +66,14 @@
 
     if (!camCoords || !camCoords.latitude) {
   console.log("GPS not ready yet");
-      camCoords = { latitude: 38.712, longitude: -9.135 }; // temporary override
-  return;
+      const camCoords2 = { latitude: 38.712, longitude: -9.135 }; // temporary override
+  
 }
     
     const entityCoords = this.el.getAttribute('gps-new-entity-place');
     const dist = getDistanceFromLatLonInM(
-      camCoords.latitude,
-      camCoords.longitude,
+      camCoords2.latitude,
+      camCoords2.longitude,
       entityCoords.latitude,
       entityCoords.longitude
     );
