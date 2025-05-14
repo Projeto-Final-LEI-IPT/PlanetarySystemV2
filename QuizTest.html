@@ -59,13 +59,11 @@
     this.quizPlane = null;
   },
   tick() {
-    //console.log("Camera position:", cameraPosition);
-    console.log("Planet position:", planetPosition);
-    console.log("Distance to planet:", distance);
     if (this.completed) return;
 
     const camera = document.querySelector('[gps-new-camera]');
     const camCoords = camera.components['gps-new-camera'].currentCoords;
+    
     if (!camCoords) return;
 
     const entityCoords = this.el.getAttribute('gps-new-entity-place');
@@ -75,6 +73,9 @@
       entityCoords.latitude,
       entityCoords.longitude
     );
+    console.log("Camera position:", camCoords);
+    console.log("Planet position:", entityCoords);
+    console.log("Distance to planet:", dist);
 
     if (!this.quizPlane) {
       console.log("Showing quiz regardless of distance");
