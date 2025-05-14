@@ -62,18 +62,17 @@
     if (this.completed) return;
 
     const camera = document.querySelector('[gps-new-camera]');
-    const camCoords = camera.components['gps-new-camera'].currentCoords;
+    const camCoords = { latitude: 38.712, longitude: -9.135 }; // temporary override //camera.components['gps-new-camera'].currentCoords;
 
     if (!camCoords || !camCoords.latitude) {
-  console.log("GPS not ready yet");
-      const camCoords2 = { latitude: 38.712, longitude: -9.135 }; // temporary override
-  
-}
+      console.log("GPS not ready yet");
+      return;
+    }
     
     const entityCoords = this.el.getAttribute('gps-new-entity-place');
     const dist = getDistanceFromLatLonInM(
-      camCoords2.latitude,
-      camCoords2.longitude,
+      camCoords.latitude,
+      camCoords.longitude,
       entityCoords.latitude,
       entityCoords.longitude
     );
