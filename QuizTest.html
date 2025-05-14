@@ -73,7 +73,7 @@
       entityCoords.longitude
     );
 
-    if (dist < this.data.range && !document.querySelector('#quizPlane')) {
+    if (dist < this.data.range && !document.querySelector('quizPlane')) {
       this.data.triggered = true;
       this.showNextQuestion();
     }
@@ -94,7 +94,7 @@
 
     // Create quiz UI
     const plane = document.createElement('a-plane');
-    plane.setAttribute('position', { x: 0, y: 0, z: -2 });
+    plane.setAttribute('position', { x: 0, y: 1.5, z: -1 });
     plane.setAttribute('width', 2);
     plane.setAttribute('height', 1.8);
     plane.setAttribute('color', '#333');
@@ -200,7 +200,7 @@
         if (planet.questions && planet.questions.length > 0) {
           console.log("Attaching quiz to", planet.name, planet.questions);
           sphere.setAttribute("proximity-check", {
-            range: 1500,
+            range: 15,
             questions: JSON.stringify(planet.questions),
             triggered: false
           });
