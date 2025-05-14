@@ -64,7 +64,7 @@
     const camera = document.querySelector('[gps-new-camera]');
     const camCoords = camera.components['gps-new-camera'].currentCoords;
     
-    if (!camCoords) return;
+    
 
     const entityCoords = this.el.getAttribute('gps-new-entity-place');
     const dist = getDistanceFromLatLonInM(
