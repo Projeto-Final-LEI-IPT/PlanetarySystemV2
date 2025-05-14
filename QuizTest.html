@@ -52,6 +52,7 @@
     triggered: { type: 'boolean', default: false }
   },
   init() {
+    console.log("Initialized proximity-check", this.el.getAttribute('name'));
     this.questions = JSON.parse(this.data.questions);
     this.currentQuestionIndex = 0;
     this.completed = false;
@@ -78,6 +79,7 @@
     }
   },
   showNextQuestion() {
+    console.log("Displaying question", this.questions[this.currentQuestionIndex]);
     const camera = document.querySelector('[gps-new-camera]');
     const questionData = this.questions[this.currentQuestionIndex];
 
@@ -196,6 +198,7 @@
         });
 
         if (planet.questions && planet.questions.length > 0) {
+          console.log("Attaching quiz to", planet.name, planet.questions);
           sphere.setAttribute("proximity-check", {
             range: 1500,
             questions: JSON.stringify(planet.questions),
