@@ -69,8 +69,6 @@
     }
     
     const entityCoords = this.el.getAttribute('gps-new-entity-place');
-    console.log(entityCoords.latitule);
-    console.log(entityCoords.longitude);
     const dist = getDistanceFromLatLonInM(
       camCoords.latitude,
       camCoords.longitude,
@@ -79,13 +77,12 @@
     );
     console.log(dist);
     
-if (dist <= 200000) {
-    if (!this.quizPlane) {
-      console.log("Showing quiz regardless of distance");
-      this.data.triggered = true;
-      this.showNextQuestion();
+    if (dist <= 200000) {
+      if (this.data.triggered) return;
+        this.data.triggered = true;
+      console.log(this.data.triggered);
+        this.showNextQuestion();
     }
-}
   },
   showNextQuestion() {
     
