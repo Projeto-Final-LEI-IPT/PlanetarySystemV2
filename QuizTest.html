@@ -75,7 +75,8 @@
       entityCoords.latitude,
       entityCoords.longitude
     );
-if (dist <= this.data.range) {
+    
+if (dist <= 20) {
     if (!this.quizPlane) {
       console.log("Showing quiz regardless of distance");
       this.data.triggered = true;
