@@ -61,7 +61,7 @@
     if (this.completed) return;
 
     const camera = document.querySelector('[gps-new-camera]');
-    const camCoords = { latitude: 38.712, longitude: -9.135 }; // temporary override //camera.components['gps-new-camera'].currentCoords;
+    const camCoords = camera.components['gps-new-camera'].currentCoords; //{ latitude: 38.712, longitude: -9.135 }; // temporary override
 
     if (!camCoords || !camCoords.latitude) {
       console.log("GPS not ready yet");
