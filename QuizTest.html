@@ -69,13 +69,15 @@
     }
     
     const entityCoords = this.el.getAttribute('gps-new-entity-place');
-    console.log(entityCoords);
+    console.log(entityCoords.latitule);
+    console.log(entityCoords.longitude);
     const dist = getDistanceFromLatLonInM(
       camCoords.latitude,
       camCoords.longitude,
       entityCoords.latitude,
       entityCoords.longitude
     );
+    console.log(dist);
     
 //if (dist <= 200) {
     if (!this.quizPlane) {
