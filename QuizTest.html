@@ -79,13 +79,13 @@
     );
     console.log(dist);
     
-//if (dist <= 200) {
+if (dist <= 200000) {
     if (!this.quizPlane) {
       console.log("Showing quiz regardless of distance");
       this.data.triggered = true;
       this.showNextQuestion();
     }
-//}
+}
   },
   showNextQuestion() {
     
