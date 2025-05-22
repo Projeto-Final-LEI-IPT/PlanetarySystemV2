@@ -61,7 +61,7 @@
     if (this.completed) return;
 
     const camera = document.querySelector('[gps-new-camera]');
-    const camCoords = camera.components['gps-new-camera'].currentCoords; //{ latitude: 38.712, longitude: -9.135 }; // temporary override
+    const camCoords = { latitude: 38.712, longitude: -9.135 }; //camera.components['gps-new-camera'].currentCoords;  // temporary override
 
     if (!camCoords || !camCoords.latitude) {
       console.log("GPS not ready yet");
@@ -69,6 +69,7 @@
     }
     
     const entityCoords = this.el.getAttribute('gps-new-entity-place');
+    console.log(entityCoords);
     const dist = getDistanceFromLatLonInM(
       camCoords.latitude,
       camCoords.longitude,
