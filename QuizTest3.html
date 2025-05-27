@@ -149,8 +149,10 @@
   latitude: 38.712,
   longitude: -9.135
 };
+        console.log("Camera:", camCoords);
 
         const entityCoords = this.el.getAttribute('gps-new-entity-place');
+        console.log("Entity:", entityCoords);
         if (!entityCoords) return;
 
         const dist = getDistanceFromLatLonInM(
@@ -159,10 +161,7 @@
           entityCoords.latitude,
           entityCoords.longitude
         );
-        console.log("Camera:", camCoords);
-        console.log("Entity:", entityCoords);
         console.log("Distance to entity:", dist);
-
 
         if (dist <= this.data.range) {
           console.log("Proximity triggered. Distance:", dist);
