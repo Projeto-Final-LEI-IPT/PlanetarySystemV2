@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solar System AR Quiz</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: radial-gradient(circle at top, #1e3c72, #2a5298);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .play-button {
+      background-color: #ffcc00;
+      color: #000;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .play-button:hover {
+      background-color: #ffdd33;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to Planetary System V2</h1>
+    <p>Explore the solar system in augmented reality and answer fun questions about each planet.</p>
+    <button class="play-button" onclick="startGame()">Play</button>
+  </div>
+
+  <script>
+    function startGame() {
+      window.location.href = 'QuizTest3.html';
+    }
+  </script>
+</body>
+</html>
