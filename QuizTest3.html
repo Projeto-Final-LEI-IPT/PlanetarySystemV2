@@ -60,7 +60,7 @@
 
         const camera = document.querySelector('[gps-new-camera]');
         const gpsComponent = camera.components['gps-new-camera'];
-        if (!gpsComponent || !gpsComponent.currentCoords) return;
+        if (!gpsComponent || !gpsComponent._currentPosition) return;
 
         const camCoords = camera.components['gps-new-camera'].currentCoords || {
   latitude: 38.712,
