@@ -62,10 +62,7 @@
         const gpsComponent = camera.components['gps-new-camera'];
         if (!gpsComponent || !gpsComponent._currentPosition) return;
 
-        const camCoords = camera.components['gps-new-camera'].currentCoords || {
-  latitude: 38.712,
-  longitude: -9.135
-};
+        const camCoords = camera.components['gps-new-camera'].currentCoords};
         console.log("Camera:", camCoords);
 
         const entityCoords = this.el.getAttribute('gps-new-entity-place');
