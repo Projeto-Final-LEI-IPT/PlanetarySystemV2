@@ -46,7 +46,7 @@
 
     AFRAME.registerComponent('proximity-check', {
       schema: {
-        range: { type: 'number', default: 15 },
+        range: { type: 'number', default: 5 },
         questions: { type: 'string', default: '[]' },
         triggered: { type: 'boolean', default: false }
       },
@@ -164,7 +164,7 @@
 
         if (planet.questions && planet.questions.length > 0) {
           sphere.setAttribute("proximity-check", {
-            range: 15,
+            range: 5,
             questions: JSON.stringify(planet.questions),
             triggered: false
           });
