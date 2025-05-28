@@ -75,7 +75,7 @@
         );
 
         if (dist <= this.data.range) {
-          console.log(this.el.name, " : Proximity triggered. Distance:", dist);
+          console.log(this.el.attributes.name, " : Proximity triggered. Distance:", dist);
           this.triggeredOnce = true;
           this.showQuestion();
         }
