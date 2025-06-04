@@ -221,7 +221,11 @@
         sphere.setAttribute("shadow", "");
         const imgSrc = "data:image/jpg;base64," + planet.texture;
         sphere.setAttribute("material", { src: imgSrc, shader: "standard" });
-        sphere.setAttribute("show-plane", { name: planet.name }, { desc: planet.description });
+        sphere.setAttribute("show-plane", 
+        { 
+            name: planet.name, 
+            desc: planet.description 
+        });
         
 
         if (planet.speed > 0) {
