@@ -213,6 +213,7 @@
         const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 0);
 
         const entity = document.createElement("a-entity");
+        entity.setAttribute("cursor", "rayOrigin:mouse");
 
         const sphere = document.createElement("a-sphere");
         sphere.setAttribute("name", planet.name);
