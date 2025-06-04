@@ -181,11 +181,11 @@
       }
     }
 
-    function createOrbitWithCircles(userLat, userLon, distance) {
+    function createOrbitWithCircles(userLat, userLon, distance, orbitSegments = null) {
     const scene = document.querySelector("a-scene");
 
     // Se orbitSegments não for definido, calcula automaticamente
-    const segments = Math.round(20 + distance * 20); // Ex: 5 → 27, 45 → 88
+    const segments = orbitSegments || Math.round(20 + distance * 2); // Ex: 5 → 27, 45 → 88
 
     for (let i = 0; i < segments; i++) {
         const angle = (360 / segments) * i;
@@ -196,7 +196,7 @@
             latitude: lat,
             longitude: lon
         });
-        circle.setAttribute("radius", 1);
+        circle.setAttribute("radius", 0.1);
         circle.setAttribute("rotation", "-90 0 0");
         circle.setAttribute("color", "white");
         circle.setAttribute("material", "opacity: 1; transparent: true");
