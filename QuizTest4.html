@@ -97,7 +97,15 @@
           const btn = document.createElement('button');
           btn.className = 'quiz-answer';
           btn.textContent = answer;
+          
           btn.addEventListener('click', () => {
+            // Prevent multiple triggers
+            if (btn.classList.contains('clicked')) return;
+            btn.classList.add('clicked');
+
+            // Only allow one click per button
+            btn.disabled = true;
+            
             if (i === questionData.rightAnswer) {
               btn.classList.add('correct');
               setTimeout(() => {
