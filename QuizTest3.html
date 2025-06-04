@@ -85,6 +85,8 @@
         if (!questionData) return;
 
         const modal = document.getElementById('quizModal');
+        const planetTitle = document.getElementById('quizPlanetName');
+        planetTitle.textContent = this.el.getAttribute('name') || 'Planet';
         const qText = document.getElementById('quizQuestion');
         const answersContainer = document.getElementById('quizAnswers');
 
@@ -226,6 +228,7 @@
       display: block;
       padding: 10px;
       margin: 10px auto;
+      width: 100%;
       background: #eee;
       border: none;
       border-radius: 8px;
@@ -251,6 +254,7 @@
 <body>
   <div class="quiz-modal" id="quizModal">
     <div class="quiz-content">
+      <h1 id="quizPlanetName" style="margin-bottom: 10px;">Planet</h1>
       <h2 id="quizQuestion">Question?</h2>
       <div id="quizAnswers"></div>
     </div>
