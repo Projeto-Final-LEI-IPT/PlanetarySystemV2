@@ -185,7 +185,7 @@
     const scene = document.querySelector("a-scene");
 
     // Se orbitSegments não for definido, calcula automaticamente
-    const segments = orbitSegments || Math.round(20 + distance * 2); // Ex: 5 → 27, 45 → 88
+    const segments = orbitSegments || Math.round(20 + distance * 20); // Ex: 5 → 27, 45 → 88
 
     for (let i = 0; i < segments; i++) {
         const angle = (360 / segments) * i;
@@ -221,6 +221,8 @@
         sphere.setAttribute("shadow", "");
         const imgSrc = "data:image/jpg;base64," + planet.texture;
         sphere.setAttribute("material", { src: imgSrc, shader: "standard" });
+        sphere.setAttribute("show-plane", { name: planet.name }, { desc: planet.description });
+        
 
         if (planet.speed > 0) {
         sphere.setAttribute("dynamic-movement", {
@@ -230,7 +232,7 @@
           originLon: userLon,
           distance: planet.distanciafoco1
         });
-        createOrbitWithCircles(userLat, userLon, planet.distance);
+        createOrbitWithCircles(userLat, userLon, planet.distanciafoco1);
     }
 
         if (planet.questions && planet.questions.length > 0) {
@@ -247,11 +249,11 @@
     }
 
     AFRAME.registerComponent('show-plane', {
-  schema: { name: { type: 'string' } },
+  schema: { name: { type: 'string' } , desc: { type : 'string' } },
   init() {
     this.el.addEventListener('click', () => {
-      const planet = planetData.find(p => p.name === this.data.name);
-      const desc = planet?.description || "Sem descrição disponível.";
+      //const planet = planetData.find(p => p.name === this.data.name);
+      const desc = this.data.desc || "Sem descrição disponível.";
       const panel = document.getElementById('info-panel');
       const text = document.getElementById('info-text');
       text.innerHTML = `<strong>${this.data.name}</strong><br>${desc}`;
