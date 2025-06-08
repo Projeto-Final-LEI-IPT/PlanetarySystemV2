@@ -97,7 +97,15 @@
           const btn = document.createElement('button');
           btn.className = 'quiz-answer';
           btn.textContent = answer;
+          
           btn.addEventListener('click', () => {
+            // Prevent multiple triggers
+            if (btn.classList.contains('clicked')) return;
+            btn.classList.add('clicked');
+
+            // Only allow one click per button
+            btn.disabled = true;
+            
             if (i === questionData.rightAnswer) {
               btn.classList.add('correct');
               setTimeout(() => {
@@ -154,6 +162,20 @@
       const display = document.getElementById('distanceDisplay');
       display.textContent = `Aproximando-se de ${name}`;
     }
+  }
+});
+
+  AFRAME.registerComponent('show-plane', {
+  schema: { name: { type: 'string' } , desc: { type : 'string' } },
+  init() {
+    this.el.addEventListener('click', () => {
+      //const planet = planetData.find(p => p.name === this.data.name);
+      const desc = this.data.desc || "Sem descrição disponível.";
+      const panel = document.getElementById('info-panel');
+      const text = document.getElementById('info-text');
+      text.innerHTML = `<strong>${this.data.name}</strong><br>${desc}`;
+      panel.style.display = 'block';
+    });
   }
 });
 
@@ -252,20 +274,6 @@
         scene.appendChild(entity);
       });
     }
-
-    AFRAME.registerComponent('show-plane', {
-  schema: { name: { type: 'string' } , desc: { type : 'string' } },
-  init() {
-    this.el.addEventListener('click', () => {
-      //const planet = planetData.find(p => p.name === this.data.name);
-      const desc = this.data.desc || "Sem descrição disponível.";
-      const panel = document.getElementById('info-panel');
-      const text = document.getElementById('info-text');
-      text.innerHTML = `<strong>${this.data.name}</strong><br>${desc}`;
-      panel.style.display = 'block';
-    });
-  }
-});
 
     document.addEventListener("DOMContentLoaded", initPlanets);
 
