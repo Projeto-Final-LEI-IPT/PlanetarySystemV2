@@ -207,7 +207,7 @@
     const scene = document.querySelector("a-scene");
 
     // Se orbitSegments não for definido, calcula automaticamente
-    const segments = orbitSegments || Math.round(20 + distance * 20); // Ex: 5 → 27, 45 → 88
+    const segments = orbitSegments || Math.round(20 + distance * 6); // Ex: 5 → 27, 45 → 88
 
     for (let i = 0; i < segments; i++) {
         const angle = (360 / segments) * i;
