@@ -144,6 +144,22 @@ AFRAME.registerComponent('show-plane', {
   }
 });
 
+function createOrbitWithCircles(userLat, userLon, distance, segments = null) {
+  const scene = document.querySelector("a-scene");
+  const count = segments || Math.round(20 + distance * 20);
+  for (let i = 0; i < count; i++) {
+    const angle = (360 / count) * i;
+    const { lat, lon } = computeOffset(userLat, userLon, distance, angle);
+    const circle = document.createElement("a-circle");
+    circle.setAttribute("gps-new-entity-place", { latitude: lat, longitude: lon });
+    circle.setAttribute("radius", 0.1);
+    circle.setAttribute("rotation", "-90 0 0");
+    circle.setAttribute("color", "white");
+    circle.setAttribute("material", "opacity: 1; transparent: true");
+    scene.appendChild(circle);
+  }
+}
+
 function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
   const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -185,6 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 originLon: e.data.lon,
                 distance: p.distance
               });
+              createOrbitWithCircles(e.data.userLat, e.data.userLon, p.distance);
             }
 
             if (p.questions.length > 0) {
