@@ -208,12 +208,10 @@
 
     const planetCoords = computeOffset(userLat, userLon, orbitDistance, 0);
 
-    const visualRadius = computeDistance(userLat, userLon, planetCoords.lat, planetCoords.lon);
-
     const orbitRing = document.createElement("a-ring");
     orbitRing.setAttribute("gps-new-entity-place", {latitude: userLat, longitude: userLon});
-    orbitRing.setAttribute("radius-inner", visualRadius - 3);
-    orbitRing.setAttribute("radius-outer", visualRadius + 3);
+    orbitRing.setAttribute("radius-inner", orbitDistance - 3);
+    orbitRing.setAttribute("radius-outer", orbitDistance + 3);
     orbitRing.setAttribute("color", "white");
     orbitRing.setAttribute("rotation", "-90 0 0");
     orbitRing.setAttribute("material", "opacity: 0.4; transparent: true");
