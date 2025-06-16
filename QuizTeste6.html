@@ -24,22 +24,6 @@
       return R * c;
     }
 
-  function gpsDistance(lat1, lon1, lat2, lon2) {
-    const R = 6378137;
-    const toRad = x => x * Math.PI / 180;
-
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-              
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-}
-
-
     AFRAME.registerComponent('dynamic-movement', {
       schema: {
         type: { type: 'string' },
@@ -178,7 +162,7 @@
       }
     });
 
-    if (closest && minDistance < 1000) {
+    if (closest && minDistance < 50) {
       const name = closest.getAttribute('name') || 'um planeta';
       const display = document.getElementById('distanceDisplay');
       display.textContent = `${Math.round(minDistance)} metros até ${name}`;
@@ -229,6 +213,7 @@
     }
 
     function createOrbitRing(userLat, userLon, orbitDistance) {
+      console.log("distancia: ", orbitDistance)
     const scene = document.querySelector("a-scene");
 
     const orbitRing = document.createElement("a-ring");
@@ -276,7 +261,7 @@
         });
         
         const planetCoords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
-        const actualDistance = gpsDistance(userLat, userLon, planetCoords.latitude, planetCoords.longitude);
+        const actualDistance = getDistanceFromLatLonInM(userLat, userLon, planetCoords.latitude, planetCoords.longitude);
 
         createOrbitRing(userLat, userLon, actualDistance);
     }
