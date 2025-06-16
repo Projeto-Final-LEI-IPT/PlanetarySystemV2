@@ -38,7 +38,16 @@
       tick(time, timeDelta) {
         if (this.data.type === "spin") {
           this.angle += this.data.speed * timeDelta;
-          const newCoords = computeOffset(this.data.originLat, this.data.originLon, this.data.distance, this.angle * (180 / Math.PI));
+          // Keep angle in 0–360 range
+      if (this.angle >= 360) this.angle -= 360;
+
+      // Compute new GPS coordinates
+      const newCoords = computeOffset(
+        this.data.originLat,
+        this.data.originLon,
+        this.data.distance,
+        this.angle
+      );
           this.el.setAttribute('gps-new-entity-place', { latitude: newCoords.lat, longitude: newCoords.lon });
         }
       }
@@ -210,40 +219,14 @@
 
     const orbitRing = document.createElement("a-ring");
     orbitRing.setAttribute("gps-new-entity-place", {latitude: userLat, longitude: userLon});
-    orbitRing.setAttribute("width", orbitDistance);
-    //orbitRing.setAttribute("radius-inner", 1);
-    //orbitRing.setAttribute("radius-outer", 2);
+    orbitRing.setAttribute("radius-inner", orbitDistance -1);
+    orbitRing.setAttribute("radius-outer", orbitDistance +1);
     orbitRing.setAttribute("color", "white");
     orbitRing.setAttribute("rotation", "-90 0 0");
     orbitRing.setAttribute("material", "opacity: 0.4; transparent: true");
 
     scene.appendChild(orbitRing);
 }
-
-
-    /* function createOrbitWithCircles(userLat, userLon, distance, orbitSegments = null) {
-    const scene = document.querySelector("a-scene");
-
-    // Se orbitSegments não for definido, calcula automaticamente
-    const segments = orbitSegments || Math.round(20 + distance * 6); // Ex: 5 → 27, 45 → 88
-
-    for (let i = 0; i < segments; i++) {
-        const angle = (360 / segments) * i;
-        const { lat, lon } = computeOffset(userLat, userLon, distance, angle);
-
-        const circle = document.createElement("a-circle");
-        circle.setAttribute("gps-new-entity-place", {
-            latitude: lat,
-            longitude: lon
-        });
-        circle.setAttribute("radius", 0.1);
-        circle.setAttribute("rotation", "-90 0 0");
-        circle.setAttribute("color", "white");
-        circle.setAttribute("material", "opacity: 1; transparent: true");
-
-        scene.appendChild(circle);
-    }
-} */
 
     function createPlanets(userLat, userLon, data) {
       const planetData = data.planets;
