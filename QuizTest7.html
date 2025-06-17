@@ -271,44 +271,7 @@
   }
 });
 
-        AFRAME.registerComponent('orbit-trail', {
-  schema: {
-    maxPoints: { type: 'int', default: 128 },
-    color: { type: 'string', default: '#00ffcc' }
-  },
-  init() {
-    this.positions = [];
-    this.line = null;
-    this.material = new THREE.LineBasicMaterial({
-      color: this.data.color,
-      linewidth: 2,
-      transparent: true,
-      opacity: 0.6
-    });
-
-    this.geometry = new THREE.BufferGeometry();
-    this.el.sceneEl.object3D.add(new THREE.LineLoop(this.geometry, this.material));
-  },
-  tick() {
-    const pos = this.el.object3D.position.clone();
-
-    this.positions.push(pos);
-
-    // Limit to maxPoints
-    if (this.positions.length > this.data.maxPoints) {
-      this.positions.shift();
-    }
-
-    const vertices = [];
-    this.positions.forEach(p => {
-      vertices.push(p.x, p.y, p.z);
-    });
-
-    this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    this.geometry.setDrawRange(0, this.positions.length);
-    this.geometry.attributes.position.needsUpdate = true;
-  }
-});
+        
 
         AFRAME.registerComponent('orbit-ring-generator', {
   schema: {
@@ -438,11 +401,6 @@
   size: 0.3,
   color: "#00ffff",
   lifespan: 5000
-});
-                    
-                    sphere.setAttribute("orbit-trail", {
-  maxPoints: 128,
-  color: "#ffaa00"
 });
 
                     sphere.setAttribute("orbit-ring-generator", {
