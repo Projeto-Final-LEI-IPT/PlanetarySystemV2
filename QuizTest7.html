@@ -53,6 +53,11 @@
                         this.angle
                     );
                     this.el.setAttribute('gps-new-entity-place', { latitude: newCoords.lat, longitude: newCoords.lon });
+
+                    this.el.emit('orbit-point', {
+  position: this.el.object3D.position.clone(),
+  angle: this.angle
+});
                 }
             }
         });
@@ -305,6 +310,49 @@
   }
 });
 
+        AFRAME.registerComponent('orbit-ring-generator', {
+  schema: {
+    color: { type: 'string', default: '#00ffff' },
+    expectedPoints: { type: 'int', default: 360 }
+  },
+  init() {
+    this.positions = [];
+    this.built = false;
+
+    this.el.addEventListener('orbit-point', e => {
+      if (this.built) return;
+
+      const pos = e.detail.position;
+      this.positions.push(pos.clone());
+
+      if (this.positions.length >= this.data.expectedPoints) {
+        this.drawRing();
+        this.built = true;
+      }
+    });
+  },
+  drawRing() {
+    const geometry = new THREE.BufferGeometry();
+    const vertices = [];
+
+    this.positions.forEach(p => {
+      vertices.push(p.x, p.y, p.z);
+    });
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+
+    const material = new THREE.LineBasicMaterial({
+      color: this.data.color,
+      transparent: true,
+      opacity: 0.5
+    });
+
+    const line = new THREE.LineLoop(geometry, material);
+    this.el.sceneEl.object3D.add(line);
+  }
+});
+
+
 
 
 
@@ -395,6 +443,11 @@
                     sphere.setAttribute("orbit-trail", {
   maxPoints: 128,
   color: "#ffaa00"
+});
+
+                    sphere.setAttribute("orbit-ring-generator", {
+  expectedPoints: 360,
+  color: "#ffcc00"
 });
 
 
