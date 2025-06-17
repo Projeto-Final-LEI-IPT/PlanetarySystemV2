@@ -243,7 +243,7 @@
             "detailsViewed": false,
             "foco1elipse": 0,
             "foco2elipse": 0,
-            "distanciafoco1": 25,
+            "distanciafoco1": 30,
             "distanciafoco2": 28,
             "questions": [
                 {
@@ -320,7 +320,7 @@
             "detailsViewed": false,
             "foco1elipse": 0,
             "foco2elipse": 0,
-            "distanciafoco1": 35,
+            "distanciafoco1": 40,
             "distanciafoco2": 41,
             "questions": [
                 {
@@ -628,7 +628,7 @@
             "detailsViewed": false,
             "foco1elipse": 0,
             "foco2elipse": 0,
-            "distanciafoco1": 100,
+            "distanciafoco1": 110,
             "distanciafoco2": 142,
             "questions": [
                 {
