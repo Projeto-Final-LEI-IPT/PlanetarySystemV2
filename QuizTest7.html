@@ -196,37 +196,6 @@
             }
         });
 
-        AFRAME.registerComponent('orbit-geometry', {
-            schema: {
-                radius: { type: 'number', default: 10 },
-                segments: { type: 'int', default: 64 }
-            },
-            init: function () {
-                const geometry = new THREE.BufferGeometry();
-                const { radius, segments } = this.data;
-
-                const positions = [];
-
-                for (let i = 0; i <= segments; i++) {
-                    const theta = (i / segments) * Math.PI * 2;
-                    const x = radius * Math.cos(theta);
-                    const z = radius * Math.sin(theta);
-                    positions.push(x, 0, z); // y = 0 for a flat ring
-                }
-
-                const positionAttribute = new THREE.Float32BufferAttribute(positions, 3);
-                geometry.setAttribute('position', positionAttribute);
-
-                const material = new THREE.LineBasicMaterial({
-                    color: 0xffffff,
-                    transparent: true,
-                    opacity: 0.4
-                });
-
-                const line = new THREE.LineLoop(geometry, material);
-                this.el.setObject3D('mesh', line);
-            }
-        });
 
         AFRAME.registerComponent('ghost-trail', {
   schema: {
