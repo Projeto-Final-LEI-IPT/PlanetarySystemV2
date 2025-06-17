@@ -365,7 +365,7 @@
             const scene = document.querySelector("a-scene");
 
             planetData.forEach((planet, index) => {
-                const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
+                const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 0);
 
                 const entity = document.createElement("a-entity");
                 entity.setAttribute("cursor", "rayOrigin:mouse");
