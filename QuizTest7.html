@@ -266,7 +266,7 @@
           distance: planet.distanciafoco1
         });
           const planetCoords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
-          const actualDistance = gpsDistance(userLat, userLon, planetCoords.lat, planetCoords.lon);
+          const actualDistance = getDistanceFromLatLonInM(userLat, userLon, planetCoords.lat, planetCoords.lon);
           createOrbitRing(userLat, userLon, actualDistance);
     }
 
