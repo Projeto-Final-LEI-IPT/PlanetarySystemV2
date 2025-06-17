@@ -323,9 +323,6 @@
 
 
 
-
-
-
         async function initPlanets() {
             try {
                 const response = await fetch('SystemData.json');
@@ -409,7 +406,7 @@ document.querySelector('a-scene').appendChild(originEntity);
                     });
 
                     sphere.setAttribute("dynamic-orbit-renderer", {
-  speed: orbitData.speed,
+  speed: planet.speed,
   color: "#ffffff"
 });
 
