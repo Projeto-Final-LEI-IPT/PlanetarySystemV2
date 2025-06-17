@@ -315,6 +315,43 @@
   }
 });
 
+        AFRAME.registerComponent('orbit-geometry', {
+    schema: {
+        lat: { type: 'number' },
+        lon: { type: 'number' },
+        radius: { type: 'number', default: 10 },
+        segments: { type: 'int', default: 128 }
+    },
+    init: function () {
+        const { lat, lon, radius, segments } = this.data;
+        const origin = new THREE.Vector3(0, 0, 0); // Local origin
+        const positions = [];
+
+        for (let i = 0; i <= segments; i++) {
+            const angle = (i / segments) * 360;
+            const offset = computeOffset(lat, lon, radius, angle);
+
+            // Convert offset point back into relative X/Z using haversine-style flat approximation
+            const dx = getDistanceFromLatLonInM(lat, lon, lat, offset.lon);
+            const dz = getDistanceFromLatLonInM(lat, lon, offset.lat, lon);
+
+            const x = offset.lon > lon ? dx : -dx;
+            const z = offset.lat > lat ? -dz : dz; // Negative Z is north in A-Frame
+
+            positions.push(x, 0, z);
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+        const material = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 });
+        const line = new THREE.LineLoop(geometry, material);
+
+        this.el.setObject3D('mesh', line);
+    }
+});
+
+
 
 
 
@@ -329,6 +366,14 @@
                         (position) => {
                             const userLat = position.coords.latitude;
                             const userLon = position.coords.longitude;
+                            const originEntity = document.createElement('a-entity');
+originEntity.setAttribute('id', 'orbit-origin');
+originEntity.setAttribute('gps-new-entity-place', {
+    latitude: userLat,
+    longitude: userLon
+});
+document.querySelector('a-scene').appendChild(originEntity);
+
                             createPlanets(userLat, userLon, data);
                         },
                         (error) => console.error("Error getting location:", error),
@@ -392,6 +437,17 @@
                         originLon: userLon,
                         distance: planet.distanciafoco1
                     });
+
+                    // Planet orbit circle, attached to the originEntity
+    const orbitRing = document.createElement('a-entity');
+    orbitRing.setAttribute('orbit-geometry', {
+        lat: userLat,
+        lon: userLon,
+        radius: planet.distanciafoco1,
+        segments: 128
+    });
+
+    document.getElementById('orbit-origin').appendChild(orbitRing);
 
                     //const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
                     createCustomOrbit(userLat, userLon, planet.distanciafoco1);
