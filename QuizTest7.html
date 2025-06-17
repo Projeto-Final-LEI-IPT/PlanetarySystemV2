@@ -319,7 +319,7 @@
         this.positions.push(pos);
 
         // Close the loop after 360°
-        if (this.angles.size === 360) {
+        if (this.angles.size === 360 || this.angles.size > 360) {
           this.el.removeEventListener('orbit-point', this); // stop listening
         }
 
