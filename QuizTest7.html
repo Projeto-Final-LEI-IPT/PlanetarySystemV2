@@ -223,6 +223,50 @@
             }
         });
 
+        AFRAME.registerComponent('ghost-trail', {
+  schema: {
+    interval: { type: 'number', default: 1000 }, // milliseconds
+    size: { type: 'number', default: 0.3 },
+    color: { type: 'string', default: '#ffffff' },
+    lifespan: { type: 'number', default: 5000 } // ms before fade-out
+  },
+  init() {
+    this.lastSpawn = 0;
+  },
+  tick(time, timeDelta) {
+    if (time - this.lastSpawn > this.data.interval) {
+      this.spawnGhost();
+      this.lastSpawn = time;
+    }
+  },
+  spawnGhost() {
+    const pos = this.el.object3D.position.clone();
+    const ghost = document.createElement('a-sphere');
+    ghost.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
+    ghost.setAttribute('radius', this.data.size);
+    ghost.setAttribute('color', this.data.color);
+    ghost.setAttribute('opacity', '0.5');
+    ghost.setAttribute('transparent', true);
+
+    const scene = document.querySelector('a-scene');
+    scene.appendChild(ghost);
+
+    // Fade out
+    ghost.setAttribute('animation__fade', {
+      property: 'material.opacity',
+      to: 0,
+      dur: this.data.lifespan,
+      easing: 'linear'
+    });
+
+    // Remove after fade
+    setTimeout(() => {
+      ghost.parentNode.removeChild(ghost);
+    }, this.data.lifespan);
+  }
+});
+
+
 
 
         async function initPlanets() {
@@ -301,6 +345,14 @@
 
                     //const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
                     createCustomOrbit(userLat, userLon, planet.distanciafoco1);
+
+                    sphere.setAttribute("ghost-trail", {
+  interval: 1000, // one trail every 1s
+  size: 0.3,
+  color: "#00ffff",
+  lifespan: 5000
+});
+
                 }
 
                 if (planet.questions && planet.questions.length > 0) {
