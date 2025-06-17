@@ -1,379 +1,406 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AR.js A-Frame Solar Quiz</title>
-  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/three.js/build/ar-threex-location-only.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
-<script>
-    function computeOffset(lat, lon, distance, angle) {
-      const earthRadius = 6378137;
-      const deltaLat = (distance * Math.cos(angle * Math.PI / 180)) / earthRadius * (180 / Math.PI);
-      const deltaLon = (distance * Math.sin(angle * Math.PI / 180)) / (earthRadius * Math.cos(lat * Math.PI / 180)) * (180 / Math.PI);
-      return { lat: lat + deltaLat, lon: lon + deltaLon };
-    }
-
-    function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
-      const r = 6378137;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return r * c;
-    }
-
-    AFRAME.registerComponent('dynamic-movement', {
-      schema: {
-        type: { type: 'string' },
-        speed: { type: 'number', default: 0.01 },
-        originLat: { type: 'number' },
-        originLon: { type: 'number' },
-        distance: { type: 'number' }
-      },
-      init() {
-        this.angle = 0;
-      },
-      tick(time, timeDelta) {
-        if (this.data.type === "spin") {
-          this.angle += this.data.speed * timeDelta;
-          // Keep angle in 0–360 range
-      if (this.angle >= 360) this.angle -= 360;
-
-      // Compute new GPS coordinates
-      const newCoords = computeOffset(
-        this.data.originLat,
-        this.data.originLon,
-        this.data.distance,
-        this.angle
-      );
-          this.el.setAttribute('gps-new-entity-place', { latitude: newCoords.lat, longitude: newCoords.lon });
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR.js A-Frame Solar Quiz</title>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/three.js/build/ar-threex-location-only.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
+    <script>
+        function computeOffset(lat, lon, distance, angle) {
+            const earthRadius = 6378137;
+            const deltaLat = (distance * Math.cos(angle * Math.PI / 180)) / earthRadius * (180 / Math.PI);
+            const deltaLon = (distance * Math.sin(angle * Math.PI / 180)) / (earthRadius * Math.cos(lat * Math.PI / 180)) * (180 / Math.PI);
+            return { lat: lat + deltaLat, lon: lon + deltaLon };
         }
-      }
-    });
 
-    AFRAME.registerComponent('proximity-check', {
-      schema: {
-        range: { type: 'number', default: 1 },
-        questions: { type: 'string', default: '[]' },
-        triggered: { type: 'boolean', default: false }
-      },
-      init() {
-        this.questions = JSON.parse(this.data.questions);
-        this.currentQuestionIndex = 0;
-        this.triggeredOnce = false;
-      },
-      tick() {
-        if (this.triggeredOnce || this.currentQuestionIndex >= this.questions.length) return;
-
-        const camera = document.querySelector('[gps-new-camera]');
-        const gpsComponent = camera.components['gps-new-camera'];
-        if (!gpsComponent || !gpsComponent._currentPosition) return;
-
-        const camCoords = camera.components['gps-new-camera']._currentPosition;
-
-        const entityCoords = this.el.getAttribute('gps-new-entity-place');
-        if (!entityCoords) return;
-
-        const dist = getDistanceFromLatLonInM(
-          camCoords.latitude,
-          camCoords.longitude,
-          entityCoords.latitude,
-          entityCoords.longitude
-        );
-
-        if (dist <= this.data.range) {
-          this.triggeredOnce = true;
-          this.showQuestion();
+        function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
+            const r = 6378137;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return r * c;
         }
-      },
-      showQuestion() {
-        const questionData = this.questions[this.currentQuestionIndex];
-        if (!questionData) return;
 
-        const modal = document.getElementById('quizModal');
-        const planetTitle = document.getElementById('quizPlanetName');
-        planetTitle.textContent = this.el.getAttribute('name') || 'Planet';
-        const qText = document.getElementById('quizQuestion');
-        const answersContainer = document.getElementById('quizAnswers');
-
-        qText.textContent = questionData.question;
-        answersContainer.innerHTML = '';
-
-        questionData.answers.forEach((answer, i) => {
-          const btn = document.createElement('button');
-          btn.className = 'quiz-answer';
-          btn.textContent = answer;
-          
-          btn.addEventListener('click', () => {
-            // Prevent multiple triggers
-            if (btn.classList.contains('clicked')) return;
-            btn.classList.add('clicked');
-
-            // Only allow one click per button
-            btn.disabled = true;
-            
-            if (i === questionData.rightAnswer) {
-              btn.classList.add('correct');
-              setTimeout(() => {
-                modal.classList.remove('show');
-                this.currentQuestionIndex++;
-                this.triggeredOnce = false;
-              }, 1000);
-            } else {
-              btn.classList.add('incorrect');
-            }
-          });
-          answersContainer.appendChild(btn);
-        });
-
-        modal.classList.add('show');
-      }
-    });
-
-  AFRAME.registerComponent('planet-distance-tracker', {
-  tick() {
-    const camera = document.querySelector('[gps-new-camera]');
-    const gpsComponent = camera.components['gps-new-camera'];
-    if (!gpsComponent || !gpsComponent._currentPosition) return;
-
-    const camCoords = gpsComponent._currentPosition;
-    const planets = document.querySelectorAll('[gps-new-entity-place]');
-
-    let closest = null;
-    let minDistance = Infinity;
-
-    planets.forEach((planet) => {
-      const entityCoords = planet.getAttribute('gps-new-entity-place');
-      if (!entityCoords) return;
-
-      const dist = getDistanceFromLatLonInM(
-        camCoords.latitude,
-        camCoords.longitude,
-        entityCoords.latitude,
-        entityCoords.longitude
-      );
-
-      if (dist < minDistance) {
-        minDistance = dist;
-        closest = planet;
-      }
-    });
-
-    if (closest && minDistance < 50) {
-      const name = closest.getAttribute('name') || 'um planeta';
-      const display = document.getElementById('distanceDisplay');
-      display.textContent = `${Math.round(minDistance)} metros até ${name}`;
-    } else if (closest) {
-      const name = closest.getAttribute('name') || 'um planeta';
-      const display = document.getElementById('distanceDisplay');
-      display.textContent = `Aproximando-se de ${name}`;
-    }
-  }
-});
-
-  AFRAME.registerComponent('show-plane', {
-  schema: { name: { type: 'string' } , desc: { type : 'string' } },
-  init() {
-    this.el.addEventListener('click', () => {
-      //const planet = planetData.find(p => p.name === this.data.name);
-      const desc = this.data.desc || "Sem descrição disponível.";
-      const panel = document.getElementById('info-panel');
-      const text = document.getElementById('info-text');
-      text.innerHTML = `<strong>${this.data.name}</strong><br>${desc}`;
-      panel.style.display = 'block';
-    });
-  }
-});
-
-
-    async function initPlanets() {
-      try {
-        const response = await fetch('SystemData.json');
-        const data = await response.json();
-
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const userLat = position.coords.latitude;
-              const userLon = position.coords.longitude;
-              createPlanets(userLat, userLon, data);
+        AFRAME.registerComponent('dynamic-movement', {
+            schema: {
+                type: { type: 'string' },
+                speed: { type: 'number', default: 0.01 },
+                originLat: { type: 'number' },
+                originLon: { type: 'number' },
+                distance: { type: 'number' }
             },
-            (error) => console.error("Error getting location:", error),
-            { enableHighAccuracy: true }
-          );
-        } else {
-          console.error("Geolocation not supported.");
-        }
-      } catch (error) {
-        console.error("Error loading system2.json:", error);
-      }
-    }
+            init() {
+                this.angle = 0;
+            },
+            tick(time, timeDelta) {
+                if (this.data.type === "spin") {
+                    this.angle += this.data.speed * timeDelta;
+                    // Keep angle in 0–360 range
+                    if (this.angle >= 360) this.angle -= 360;
 
-    function createOrbitTorus(userLat, userLon, planetLat, planetLon) {
-  const scene = document.querySelector("a-scene");
-
-  // Compute real distance in meters between user and planet
-  const distance = getDistanceFromLatLonInM(userLat, userLon, planetLat, planetLon);
-
-  const orbit = document.createElement("a-entity");
-
-  orbit.setAttribute("gps-new-entity-place", {
-    latitude: userLat,
-    longitude: userLon
-  });
-
-  orbit.setAttribute("geometry", {
-    primitive: "torus",
-    radius: distance,
-    radiusTubular: 1.5, // Thickness of the ring
-    segmentsRadial: 64,
-    segmentsTubular: 16
-  });
-
-  orbit.setAttribute("rotation", "90 0 0"); // Lay flat
-  orbit.setAttribute("material", "color: white; opacity: 0.3; transparent: true");
-
-  scene.appendChild(orbit);
-}
-
-    function createPlanets(userLat, userLon, data) {
-      const planetData = data.planets;
-      const scene = document.querySelector("a-scene");
-
-      planetData.forEach((planet, index) => {
-        const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
-
-        const entity = document.createElement("a-entity");
-        entity.setAttribute("cursor", "rayOrigin:mouse");
-
-        const sphere = document.createElement("a-sphere");
-        sphere.setAttribute("name", planet.name);
-        sphere.setAttribute("gps-new-entity-place", { latitude: coords.lat, longitude: coords.lon });
-        sphere.setAttribute("radius", planet.size);
-        sphere.setAttribute("shadow", "");
-        const imgSrc = "data:image/jpg;base64," + planet.texture;
-        sphere.setAttribute("material", { src: imgSrc, shader: "standard" });
-        sphere.setAttribute("show-plane", 
-        { 
-            name: planet.name, 
-            desc: planet.description 
+                    // Compute new GPS coordinates
+                    const newCoords = computeOffset(
+                        this.data.originLat,
+                        this.data.originLon,
+                        this.data.distance,
+                        this.angle
+                    );
+                    this.el.setAttribute('gps-new-entity-place', { latitude: newCoords.lat, longitude: newCoords.lon });
+                }
+            }
         });
-        
 
-        if (planet.speed > 0) {
-        sphere.setAttribute("dynamic-movement", {
-          type: "spin",
-          speed: planet.speed,
-          originLat: userLat,
-          originLon: userLon,
-          distance: planet.distanciafoco1
+        AFRAME.registerComponent('proximity-check', {
+            schema: {
+                range: { type: 'number', default: 1 },
+                questions: { type: 'string', default: '[]' },
+                triggered: { type: 'boolean', default: false }
+            },
+            init() {
+                this.questions = JSON.parse(this.data.questions);
+                this.currentQuestionIndex = 0;
+                this.triggeredOnce = false;
+            },
+            tick() {
+                if (this.triggeredOnce || this.currentQuestionIndex >= this.questions.length) return;
+
+                const camera = document.querySelector('[gps-new-camera]');
+                const gpsComponent = camera.components['gps-new-camera'];
+                if (!gpsComponent || !gpsComponent._currentPosition) return;
+
+                const camCoords = camera.components['gps-new-camera']._currentPosition;
+
+                const entityCoords = this.el.getAttribute('gps-new-entity-place');
+                if (!entityCoords) return;
+
+                const dist = getDistanceFromLatLonInM(
+                    camCoords.latitude,
+                    camCoords.longitude,
+                    entityCoords.latitude,
+                    entityCoords.longitude
+                );
+
+                if (dist <= this.data.range) {
+                    this.triggeredOnce = true;
+                    this.showQuestion();
+                }
+            },
+            showQuestion() {
+                const questionData = this.questions[this.currentQuestionIndex];
+                if (!questionData) return;
+
+                const modal = document.getElementById('quizModal');
+                const planetTitle = document.getElementById('quizPlanetName');
+                planetTitle.textContent = this.el.getAttribute('name') || 'Planet';
+                const qText = document.getElementById('quizQuestion');
+                const answersContainer = document.getElementById('quizAnswers');
+
+                qText.textContent = questionData.question;
+                answersContainer.innerHTML = '';
+
+                questionData.answers.forEach((answer, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quiz-answer';
+                    btn.textContent = answer;
+
+                    btn.addEventListener('click', () => {
+                        // Prevent multiple triggers
+                        if (btn.classList.contains('clicked')) return;
+                        btn.classList.add('clicked');
+
+                        // Only allow one click per button
+                        btn.disabled = true;
+
+                        if (i === questionData.rightAnswer) {
+                            btn.classList.add('correct');
+                            setTimeout(() => {
+                                modal.classList.remove('show');
+                                this.currentQuestionIndex++;
+                                this.triggeredOnce = false;
+                            }, 1000);
+                        } else {
+                            btn.classList.add('incorrect');
+                        }
+                    });
+                    answersContainer.appendChild(btn);
+                });
+
+                modal.classList.add('show');
+            }
         });
-          
-          const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
 
-          // Create torus orbit using real GPS distance
-          createOrbitTorus(userLat, userLon, coords.lat, coords.lon);
-    }
+        AFRAME.registerComponent('planet-distance-tracker', {
+            tick() {
+                const camera = document.querySelector('[gps-new-camera]');
+                const gpsComponent = camera.components['gps-new-camera'];
+                if (!gpsComponent || !gpsComponent._currentPosition) return;
 
-        if (planet.questions && planet.questions.length > 0) {
-          sphere.setAttribute("proximity-check", {
-            range: 5,
-            questions: JSON.stringify(planet.questions),
-            triggered: false
-          });
+                const camCoords = gpsComponent._currentPosition;
+                const planets = document.querySelectorAll('[gps-new-entity-place]');
+
+                let closest = null;
+                let minDistance = Infinity;
+
+                planets.forEach((planet) => {
+                    const entityCoords = planet.getAttribute('gps-new-entity-place');
+                    if (!entityCoords) return;
+
+                    const dist = getDistanceFromLatLonInM(
+                        camCoords.latitude,
+                        camCoords.longitude,
+                        entityCoords.latitude,
+                        entityCoords.longitude
+                    );
+
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closest = planet;
+                    }
+                });
+
+                if (closest && minDistance < 50) {
+                    const name = closest.getAttribute('name') || 'um planeta';
+                    const display = document.getElementById('distanceDisplay');
+                    display.textContent = `${Math.round(minDistance)} metros até ${name}`;
+                } else if (closest) {
+                    const name = closest.getAttribute('name') || 'um planeta';
+                    const display = document.getElementById('distanceDisplay');
+                    display.textContent = `Aproximando-se de ${name}`;
+                }
+            }
+        });
+
+        AFRAME.registerComponent('show-plane', {
+            schema: { name: { type: 'string' }, desc: { type: 'string' } },
+            init() {
+                this.el.addEventListener('click', () => {
+                    //const planet = planetData.find(p => p.name === this.data.name);
+                    const desc = this.data.desc || "Sem descrição disponível.";
+                    const panel = document.getElementById('info-panel');
+                    const text = document.getElementById('info-text');
+                    text.innerHTML = `<strong>${this.data.name}</strong><br>${desc}`;
+                    panel.style.display = 'block';
+                });
+            }
+        });
+
+        AFRAME.registerComponent('orbit-geometry', {
+            schema: {
+                radius: { type: 'number', default: 10 },
+                segments: { type: 'int', default: 64 }
+            },
+            init: function () {
+                const geometry = new THREE.BufferGeometry();
+                const { radius, segments } = this.data;
+
+                const positions = [];
+
+                for (let i = 0; i <= segments; i++) {
+                    const theta = (i / segments) * Math.PI * 2;
+                    const x = radius * Math.cos(theta);
+                    const z = radius * Math.sin(theta);
+                    positions.push(x, 0, z); // y = 0 for a flat ring
+                }
+
+                const positionAttribute = new THREE.Float32BufferAttribute(positions, 3);
+                geometry.setAttribute('position', positionAttribute);
+
+                const material = new THREE.LineBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.4
+                });
+
+                const line = new THREE.LineLoop(geometry, material);
+                this.el.setObject3D('mesh', line);
+            }
+        });
+
+
+
+        async function initPlanets() {
+            try {
+                const response = await fetch('SystemData.json');
+                const data = await response.json();
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const userLat = position.coords.latitude;
+                            const userLon = position.coords.longitude;
+                            createPlanets(userLat, userLon, data);
+                        },
+                        (error) => console.error("Error getting location:", error),
+                        { enableHighAccuracy: true }
+                    );
+                } else {
+                    console.error("Geolocation not supported.");
+                }
+            } catch (error) {
+                console.error("Error loading system2.json:", error);
+            }
         }
 
-        entity.appendChild(sphere);
-        scene.appendChild(entity);
-      });
-    }
+        function createCustomOrbit(userLat, userLon, planetLat, planetLon) {
+            const scene = document.querySelector("a-scene");
 
-    document.addEventListener("DOMContentLoaded", initPlanets);
+            const distance = getDistanceFromLatLonInM(userLat, userLon, planetLat, planetLon);
 
-  </script>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
+            const orbit = document.createElement('a-entity');
+            orbit.setAttribute('gps-new-entity-place', {
+                latitude: userLat,
+                longitude: userLon
+            });
 
-    canvas {
-      z-index: 0 !important;
-      position: relative;
-    }
+            orbit.setAttribute('orbit-geometry', {
+                radius: distance,
+                segments: 128
+            });
 
-    .quiz-modal {
-      position: fixed;
-      top: -999px;
-      left: -999px;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: all 0.3s ease;
-    }
+            scene.appendChild(orbit);
+        }
 
-    .quiz-modal.show {
-      top: 0;
-      left: 0;
-    }
 
-    .quiz-content {
-      background: white;
-      padding: 20px;
-      width: 90%;
-      max-width: 400px;
-      border-radius: 12px;
-      text-align: center;
-    }
+        function createPlanets(userLat, userLon, data) {
+            const planetData = data.planets;
+            const scene = document.querySelector("a-scene");
 
-    .quiz-content h2 {
-      margin-bottom: 20px;
-    }
+            planetData.forEach((planet, index) => {
+                const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
 
-    .quiz-answer {
-      display: block;
-      padding: 10px;
-      margin: 10px auto;
-      width: 100%;
-      background: #eee;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+                const entity = document.createElement("a-entity");
+                entity.setAttribute("cursor", "rayOrigin:mouse");
 
-    .quiz-answer:hover {
-      background: #ddd;
-    }
+                const sphere = document.createElement("a-sphere");
+                sphere.setAttribute("name", planet.name);
+                sphere.setAttribute("gps-new-entity-place", { latitude: coords.lat, longitude: coords.lon });
+                sphere.setAttribute("radius", planet.size);
+                sphere.setAttribute("shadow", "");
+                const imgSrc = "data:image/jpg;base64," + planet.texture;
+                sphere.setAttribute("material", { src: imgSrc, shader: "standard" });
+                sphere.setAttribute("show-plane",
+                    {
+                        name: planet.name,
+                        desc: planet.description
+                    });
 
-    .quiz-answer.correct {
-      background-color: #4CAF50;
-      color: white;
-    }
 
-    .quiz-answer.incorrect {
-      background-color: #f44336;
-      color: white;
-    }
-  </style>
+                if (planet.speed > 0) {
+                    sphere.setAttribute("dynamic-movement", {
+                        type: "spin",
+                        speed: planet.speed,
+                        originLat: userLat,
+                        originLon: userLon,
+                        distance: planet.distanciafoco1
+                    });
+
+                    //const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
+                    createCustomOrbit(userLat, userLon, coords.lat, coords.lon);
+                }
+
+                if (planet.questions && planet.questions.length > 0) {
+                    sphere.setAttribute("proximity-check", {
+                        range: 5,
+                        questions: JSON.stringify(planet.questions),
+                        triggered: false
+                    });
+                }
+
+                entity.appendChild(sphere);
+                scene.appendChild(entity);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", initPlanets);
+
+    </script>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            z-index: 0 !important;
+            position: relative;
+        }
+
+        .quiz-modal {
+            position: fixed;
+            top: -999px;
+            left: -999px;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-modal.show {
+            top: 0;
+            left: 0;
+        }
+
+        .quiz-content {
+            background: white;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .quiz-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .quiz-answer {
+            display: block;
+            padding: 10px;
+            margin: 10px auto;
+            width: 100%;
+            background: #eee;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .quiz-answer:hover {
+            background: #ddd;
+        }
+
+        .quiz-answer.correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .quiz-answer.incorrect {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
 </head>
-<body>
-  <div class="quiz-modal" id="quizModal">
-    <div class="quiz-content">
-      <h1 id="quizPlanetName" style="margin-bottom: 10px;">Planet</h1>
-      <h2 id="quizQuestion">Question?</h2>
-      <div id="quizAnswers"></div>
-    </div>
-  </div>
 
-  <div id="info-panel" style="
+<body>
+    <div class="quiz-modal" id="quizModal">
+        <div class="quiz-content">
+            <h1 id="quizPlanetName" style="margin-bottom: 10px;">Planet</h1>
+            <h2 id="quizQuestion">Question?</h2>
+            <div id="quizAnswers"></div>
+        </div>
+    </div>
+
+    <div id="info-panel" style="
   display: none;
   position: fixed;
   top: 50%;
@@ -387,8 +414,8 @@
   text-align: center;
   font-family: sans-serif;
   z-index: 999;">
-  <span id="info-text"></span><br><br>
-  <button onclick="document.getElementById('info-panel').style.display='none'" style="
+        <span id="info-text"></span><br><br>
+        <button onclick="document.getElementById('info-panel').style.display='none'" style="
     background: red;
     color: white;
     border: none;
@@ -396,12 +423,12 @@
     cursor: pointer;
     border-radius: 5px;
     font-size: 1em;">Fechar</button>
-</div>
+    </div>
 
-  <a-scene vr-mode-ui="enabled: false" arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false">
-    <a-camera gps-new-camera="gpsMinDistance: 1" planet-distance-tracker></a-camera>
-  </a-scene>
-  <div id="distanceDisplay" style="
+    <a-scene vr-mode-ui="enabled: false" arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false">
+        <a-camera gps-new-camera="gpsMinDistance: 1" planet-distance-tracker></a-camera>
+    </a-scene>
+    <div id="distanceDisplay" style="
   position: fixed;
   bottom: 10px;
   left: 50%;
@@ -415,8 +442,9 @@
   pointer-events: none;
   font-family: sans-serif;
 ">
-  Procurando planetas...
-</div>
+        Procurando planetas...
+    </div>
 
 </body>
+
 </html>
