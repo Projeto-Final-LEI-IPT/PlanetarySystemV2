@@ -276,7 +276,7 @@
         AFRAME.registerComponent('orbit-ring-generator', {
   schema: {
     color: { type: 'string', default: '#00ffff' },
-    expectedPoints: { type: 'int', default: 360 }
+    expectedPoints: { type: 'int', default: 500 }
   },
   init() {
     this.positions = [];
@@ -404,7 +404,7 @@
 });
 
                     sphere.setAttribute("orbit-ring-generator", {
-  expectedPoints: 360,
+  expectedPoints: 1000,
   color: "#ffcc00"
 });
 
