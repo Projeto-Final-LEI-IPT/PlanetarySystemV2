@@ -214,15 +214,25 @@
     function createOrbitRing(userLat, userLon, orbitDistance) {
     const scene = document.querySelector("a-scene");
 
-    const orbitRing = document.createElement("a-ring");
-    orbitRing.setAttribute("gps-new-entity-place", {latitude: userLat, longitude: userLon});
-    orbitRing.setAttribute("radius-inner", orbitDistance +3);
-    orbitRing.setAttribute("radius-outer", orbitDistance +4);
-    orbitRing.setAttribute("color", "white");
-    orbitRing.setAttribute("rotation", "-90 0 0");
-    orbitRing.setAttribute("material", "opacity: 0.4; transparent: true");
+  // Compute the GPS position of the orbit ring (0 degrees angle, directly south)
+  const ringCoords = computeOffset(userLat, userLon, orbitDistance, 0);
 
-    scene.appendChild(orbitRing);
+  // Create an entity anchored at that GPS location
+  const ringEntity = document.createElement("a-entity");
+  ringEntity.setAttribute("gps-new-entity-place", {
+    latitude: ringCoords.lat,
+    longitude: ringCoords.lon
+  });
+
+  // Create the visible ring geometry
+  const ring = document.createElement("a-ring");
+  ring.setAttribute("radius-inner", 1);
+  ring.setAttribute("radius-outer", 1.2);
+  ring.setAttribute("rotation", "-90 0 0");
+  ring.setAttribute("material", "color: white; opacity: 0.4; transparent: true");
+
+  ringEntity.appendChild(ring);
+  scene.appendChild(ringEntity);
 }
 
     function createPlanets(userLat, userLon, data) {
