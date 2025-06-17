@@ -248,10 +248,8 @@
             }
         }
 
-        function createCustomOrbit(userLat, userLon, planetLat, planetLon) {
+        function createCustomOrbit(userLat, userLon, distance) {
             const scene = document.querySelector("a-scene");
-
-            const distance = getDistanceFromLatLonInM(userLat, userLon, planetLat, planetLon);
 
             const orbit = document.createElement('a-entity');
             orbit.setAttribute('gps-new-entity-place', {
@@ -260,7 +258,7 @@
             });
 
             orbit.setAttribute('orbit-geometry', {
-                radius: 2*distance,
+                radius: distance,
                 segments: 128
             });
 
@@ -302,7 +300,7 @@
                     });
 
                     //const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
-                    createCustomOrbit(userLat, userLon, coords.lat, coords.lon);
+                    createCustomOrbit(userLat, userLon, planet.distanciafoco1);
                 }
 
                 if (planet.questions && planet.questions.length > 0) {
