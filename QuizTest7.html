@@ -214,25 +214,23 @@
     function createOrbitRing(userLat, userLon, orbitDistance) {
     const scene = document.querySelector("a-scene");
 
-  // Compute the GPS position of the orbit ring (0 degrees angle, directly south)
-  const ringCoords = computeOffset(userLat, userLon, orbitDistance, 0);
+  const ring = document.createElement("a-ring");
 
-  // Create an entity anchored at that GPS location
-  const ringEntity = document.createElement("a-entity");
-  ringEntity.setAttribute("gps-new-entity-place", {
-    latitude: ringCoords.lat,
-    longitude: ringCoords.lon
+  // Attach ring to user location
+  ring.setAttribute("gps-new-entity-place", {
+    latitude: userLat,
+    longitude: userLon
   });
 
-  // Create the visible ring geometry
-  const ring = document.createElement("a-ring");
-  ring.setAttribute("radius-inner", 1);
-  ring.setAttribute("radius-outer", 1.2);
+  // Set radius in local meters — just use the orbitDistance directly
+  const thickness = 0.5; // Thin ring
+  ring.setAttribute("radius-inner", orbitDistance - thickness);
+  ring.setAttribute("radius-outer", orbitDistance + thickness);
+
   ring.setAttribute("rotation", "-90 0 0");
   ring.setAttribute("material", "color: white; opacity: 0.4; transparent: true");
 
-  ringEntity.appendChild(ring);
-  scene.appendChild(ringEntity);
+  scene.appendChild(ring);
 }
 
     function createPlanets(userLat, userLon, data) {
@@ -268,7 +266,8 @@
           distance: planet.distanciafoco1
         });
           
-        createOrbitRing(userLat, userLon, planet.distanciafoco1);
+          const actualDistance = gpsDistance(userLat, userLon, coords.lat, coords.lon);
+          createOrbitRing(userLat, userLon, actualDistance);
     }
 
         if (planet.questions && planet.questions.length > 0) {
