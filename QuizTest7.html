@@ -279,26 +279,12 @@
 
         AFRAME.registerComponent('dynamic-orbit-renderer', {
   schema: {
-    speed: { type: 'number', default: 0.01 }, // match planet speed
     color: { type: 'string', default: '#ffffff' }
   },
   init() {
-    // Dynamically compute how many points in a full orbit
-    this.maxPoints = Math.round((2 * Math.PI) / this.data.speed);
-
     this.positions = [];
+    this.angles = new Set();
     this.line = null;
-
-    this.el.addEventListener('orbit-point', (evt) => {
-      const pos = evt.detail.position;
-      this.positions.push(pos.clone());
-
-      if (this.positions.length > this.maxPoints) {
-        this.positions.shift(); // Remove the oldest
-      }
-
-      this.updateLine();
-    });
   },
   updateLine() {
     if (this.line) {
@@ -314,11 +300,35 @@
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
 
-    const material = new THREE.LineBasicMaterial({ color: this.data.color, transparent: true, opacity: 0.4 });
+    const material = new THREE.LineBasicMaterial({
+      color: this.data.color,
+      transparent: true,
+      opacity: 0.4
+    });
+
     this.line = new THREE.LineLoop(geometry, material);
     this.el.setObject3D('orbit-line', this.line);
+  },
+  play() {
+    this.el.addEventListener('orbit-point', (evt) => {
+      const pos = evt.detail.position;
+      const angle = Math.round(evt.detail.angle); // round to avoid excessive samples
+
+      if (!this.angles.has(angle)) {
+        this.angles.add(angle);
+        this.positions.push(pos);
+
+        // Close the loop after 360°
+        if (this.angles.size === 360) {
+          this.el.removeEventListener('orbit-point', this); // stop listening
+        }
+
+        this.updateLine();
+      }
+    });
   }
 });
+
 
 
 
