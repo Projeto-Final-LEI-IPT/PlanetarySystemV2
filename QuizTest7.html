@@ -211,26 +211,31 @@
       }
     }
 
-    function createOrbitRing(userLat, userLon, orbitDistance) {
-    const scene = document.querySelector("a-scene");
+    function createOrbitTorus(userLat, userLon, planetLat, planetLon) {
+  const scene = document.querySelector("a-scene");
 
-  const ring = document.createElement("a-ring");
+  // Compute real distance in meters between user and planet
+  const distance = getDistanceFromLatLonInM(userLat, userLon, planetLat, planetLon);
 
-  // Attach ring to user location
-  ring.setAttribute("gps-new-entity-place", {
+  const orbit = document.createElement("a-entity");
+
+  orbit.setAttribute("gps-new-entity-place", {
     latitude: userLat,
     longitude: userLon
   });
 
-  // Set radius in local meters — just use the orbitDistance directly
-  const thickness = 0.5; // Thin ring
-  ring.setAttribute("radius-inner", orbitDistance - thickness);
-  ring.setAttribute("radius-outer", orbitDistance + thickness);
+  orbit.setAttribute("geometry", {
+    primitive: "torus",
+    radius: distance,
+    radiusTubular: 1.5, // Thickness of the ring
+    segmentsRadial: 64,
+    segmentsTubular: 16
+  });
 
-  ring.setAttribute("rotation", "-90 0 0");
-  ring.setAttribute("material", "color: white; opacity: 0.4; transparent: true");
+  orbit.setAttribute("rotation", "90 0 0"); // Lay flat
+  orbit.setAttribute("material", "color: white; opacity: 0.3; transparent: true");
 
-  scene.appendChild(ring);
+  scene.appendChild(orbit);
 }
 
     function createPlanets(userLat, userLon, data) {
@@ -265,9 +270,11 @@
           originLon: userLon,
           distance: planet.distanciafoco1
         });
-          const planetCoords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
-          const actualDistance = getDistanceFromLatLonInM(userLat, userLon, planetCoords.lat, planetCoords.lon);
-          createOrbitRing(userLat, userLon, actualDistance);
+          
+          const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 180);
+
+          // Create torus orbit using real GPS distance
+          createOrbitTorus(userLat, userLon, coords.lat, coords.lon);
     }
 
         if (planet.questions && planet.questions.length > 0) {
