@@ -240,49 +240,6 @@
   }
 });
 
-        
-
-        AFRAME.registerComponent('orbit-ring-generator', {
-  schema: {
-    color: { type: 'string', default: '#00ffff' },
-    expectedPoints: { type: 'int', default: 500 }
-  },
-  init() {
-    this.positions = [];
-    this.built = false;
-
-    this.el.addEventListener('orbit-point', e => {
-      if (this.built) return;
-
-      const pos = e.detail.position;
-      this.positions.push(pos.clone());
-
-      if (this.positions.length >= this.data.expectedPoints) {
-        this.drawRing();
-        this.built = true;
-      }
-    });
-  },
-  drawRing() {
-    const geometry = new THREE.BufferGeometry();
-    const vertices = [];
-
-    this.positions.forEach(p => {
-      vertices.push(p.x, p.y, p.z);
-    });
-
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-
-    const material = new THREE.LineBasicMaterial({
-      color: this.data.color,
-      transparent: true,
-      opacity: 0.5
-    });
-
-    const line = new THREE.LineLoop(geometry, material);
-    this.el.sceneEl.object3D.add(line);
-  }
-});
 
         AFRAME.registerComponent('orbit-geometry', {
     schema: {
@@ -427,18 +384,11 @@ document.querySelector('a-scene').appendChild(originEntity);
   color: "#00ffff",
   lifespan: 5000
 });
-
-                    sphere.setAttribute("orbit-ring-generator", {
-  expectedPoints: 1000,
-  color: "#ffcc00"
-});
-
-
                 }
 
                 if (planet.questions && planet.questions.length > 0) {
                     sphere.setAttribute("proximity-check", {
-                        range: 5,
+                        range: 2,
                         questions: JSON.stringify(planet.questions),
                         triggered: false
                     });
