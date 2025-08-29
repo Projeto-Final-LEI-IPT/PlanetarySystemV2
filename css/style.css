@@ -1,0 +1,112 @@
+/* Reset margins/padding */
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Ensure canvas from A-Frame doesn't overlap UI */
+canvas {
+  z-index: 0 !important;
+  position: relative;
+}
+
+/* Quiz modal (hidden by default) */
+.quiz-modal {
+  position: fixed;
+  top: -999px;
+  left: -999px;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+.quiz-modal.show {
+  top: 0;
+  left: 0;
+}
+
+.quiz-content {
+  background: white;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+/* Quiz answers */
+.quiz-answer {
+  display: block;
+  padding: 10px;
+  margin: 10px auto;
+  width: 100%;
+  background: #eee;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.quiz-answer:hover {
+  background: #ddd;
+}
+.quiz-answer.correct {
+  background-color: #4CAF50;
+  color: white;
+}
+.quiz-answer.incorrect {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Info panel */
+#info-panel {
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 80%;
+  text-align: center;
+  font-family: sans-serif;
+  z-index: 999;
+}
+#info-panel button {
+  background: red;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1em;
+}
+
+/* HUD elements (distance + score) */
+#distanceDisplay, #scoreDisplay {
+  position: fixed;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  z-index: 9999;
+  pointer-events: none;
+  font-family: sans-serif;
+}
+#distanceDisplay {
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#scoreDisplay {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
