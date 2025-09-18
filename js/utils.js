@@ -10,7 +10,7 @@ function computeOffset(lat, lon, distance, angle) {
 }
 
 function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
-  const R = 6371000;
+  const R = 6378137;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat / 2) ** 2 +
