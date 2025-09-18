@@ -67,25 +67,32 @@ canvas {
 #info-panel {
   display: none;
   position: fixed;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.9);
   color: white;
   padding: 20px;
-  border-radius: 10px;
-  max-width: 80%;
+  border-radius: 12px;
+  width: 90%;              /* adapta em ecrãs pequenos */
+  max-width: 400px;        /* limite em ecrãs grandes */
+  max-height: 80vh;        /* nunca ultrapassa 80% da altura */
+  overflow-y: auto;        /* scroll se o texto for demasiado */
   text-align: center;
   font-family: sans-serif;
-  z-index: 999;
+  z-index: 9999;
 }
+
 #info-panel button {
   background: red;
   color: white;
   border: none;
   padding: 10px 20px;
+  margin-top: 15px;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 8px;
   font-size: 1em;
+  width: 100%;             /* ocupa largura inteira no mobile */
 }
 
 /* HUD elements (distance + score) */
