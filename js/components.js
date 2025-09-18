@@ -11,6 +11,8 @@ AFRAME.registerComponent('dynamic-movement', {
   tick(time, timeDelta) {
     if (this.data.type === "spin") {
       this.angle += this.data.speed * timeDelta;
+      // Keep angle in 0–360 range
+      if (this.angle >= 360) this.angle -= 360;
       const newCoords = computeOffset(this.data.originLat, this.data.originLon, this.data.distance, this.angle * (180 / Math.PI));
       this.el.setAttribute('gps-new-entity-place', { latitude: newCoords.lat, longitude: newCoords.lon });
     }
@@ -20,7 +22,7 @@ AFRAME.registerComponent('dynamic-movement', {
 // Quiz trigger when close to planet
 AFRAME.registerComponent('proximity-check', {
   schema: {
-    range: { type: 'number', default: 5 },
+    range: { type: 'number', default: 1 },
     questions: { type: 'string', default: '[]' },
     triggered: { type: 'boolean', default: false }
   },
