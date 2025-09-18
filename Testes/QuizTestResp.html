@@ -220,7 +220,7 @@
    // Troca o nome aqui
 async function initPlanetas() {
   try {
-    const response = await fetch('system2.json');
+    const response = await fetch('../system2.json');
     const data = await response.json();
 
     if (navigator.geolocation) {
@@ -410,4 +410,5 @@ document.addEventListener("DOMContentLoaded", () => {
   </a-scene>
 </body>
 </html>
+
 
