@@ -68,6 +68,8 @@ AFRAME.registerComponent('proximity-check', {
     qText.textContent = questionData.question;
     answersContainer.innerHTML = '';
 
+    const planetEl = this.el;
+
     questionData.answers.forEach((answer, i) => {
       const btn = document.createElement('button');
       btn.className = 'quiz-answer';
@@ -83,8 +85,10 @@ AFRAME.registerComponent('proximity-check', {
           score += pontos;
           pontos = 4;
           updateScoreDisplay();
-          this.currentQuestionIndex++;
-          this.triggeredOnce = this.currentQuestionIndex >= this.questions.length;
+
+          showCompletitionMark(planetEl);
+          
+          this.triggeredOnce = true;
           setTimeout(() => modal.classList.remove('show'), 1000);
         } else {
           btn.classList.add('incorrect');
