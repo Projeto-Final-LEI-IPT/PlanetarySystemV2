@@ -54,3 +54,13 @@ function createPlanets(userLat, userLon, data) {
     scene.appendChild(entity);
   });
 }
+
+function showCompletionMark(planetEl){
+  const mark = document.createElement("a-plane");
+
+  mark.setAttribute("geometry", {width: 5, height: 3 });
+  mark.setAttribute("material", {color: "green", opacity: 0.9, side: "double" });
+  mark.setAttribute("text", {value: "Conquistado", align: "center", color: "#fff", width: 10 });
+  mark.setAttribute("position", "0 7 0");
+  planetEl.appendChild(mark);
+}
