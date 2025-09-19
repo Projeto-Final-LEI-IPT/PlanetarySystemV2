@@ -87,7 +87,7 @@ AFRAME.registerComponent('proximity-check', {
           pontos = 4;
           updateScoreDisplay();
 
-          showCompletitionMark(planetEl);
+          showCompletionMark(planetEl);
           
           this.completed = true;
           setTimeout(() => modal.classList.remove('show'), 1000);
