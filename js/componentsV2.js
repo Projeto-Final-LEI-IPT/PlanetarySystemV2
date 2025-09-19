@@ -30,9 +30,10 @@ AFRAME.registerComponent('proximity-check', {
     this.questions = JSON.parse(this.data.questions);
     this.currentQuestionIndex = 0;
     this.triggeredOnce = false;
+    this.completed = false;
   },
   tick() {
-    if (this.triggeredOnce || this.currentQuestionIndex >= this.questions.length) return;
+    if (this.triggeredOnce || this.completed) return;
 
     const camera = document.querySelector('[gps-new-camera]');
     const gpsComponent = camera.components['gps-new-camera'];
@@ -88,7 +89,7 @@ AFRAME.registerComponent('proximity-check', {
 
           showCompletitionMark(planetEl);
           
-          this.triggeredOnce = true;
+          this.completed = true;
           setTimeout(() => modal.classList.remove('show'), 1000);
         } else {
           btn.classList.add('incorrect');
