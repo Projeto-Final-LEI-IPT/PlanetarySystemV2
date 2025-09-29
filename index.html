@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solar System AR Quiz</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: sans-serif;
+      background: black;
+    }
+    /* --- MENU --- */
+    #menu {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: url('https://i.imgur.com/1ZQZ1hP.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+    }
+
+    #menu-box {
+      background: rgba(0,0,0,0.8);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      color: white;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    #menu-box h1 {
+      margin-bottom: 20px;
+    }
+
+    .menu-btn {
+      display: block;
+      margin: 10px auto;
+      padding: 15px;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      background: #2196f3;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .menu-btn:hover {
+      background: #1769aa;
+    }
+
+    #instructions {
+      display: none;
+      margin-top: 20px;
+      font-size: 14px;
+      text-align: left;
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    /* --- JOGO --- */
+    #game {
+      display: none; /* fica escondido até clicar em Começar */
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- MENU PRINCIPAL -->
+<div id="menu-box">
+  <h1>🌌 Solar Quiz AR 🌍</h1>
+  <button class="menu-btn" onclick="startGame(1)">▶ Jogo Rápido</button>
+  <button class="menu-btn" onclick="toggleInstructions()">ℹ Instruções</button>
+  <button class="menu-btn" onclick="toggleDistanceMenu()">⚙️ Escolher Distância</button>
+
+  <!-- INSTRUÇÕES -->
+  <div id="instructions" style="display: none; margin-top: 20px;">
+    <p>📍 Caminha até os planetas virtuais.</p>
+    <p>❓ Quando estiver perto, aparece uma pergunta.</p>
+    <p>✅ Responde corretamente para ganhar pontos.</p>
+    <p>❌ Respostas erradas diminuem a pontuação.</p>
+    <p>Boa sorte, explorador espacial!</p>
+  </div>
+
+  <!-- SUBMENU DISTÂNCIAS -->
+  <div id="distanceMenu" style="display: none; margin-top: 20px;">
+    <button class="menu-btn" onclick="startGame(1)">▶ Distância Normal</button>
+    <button class="menu-btn" onclick="startGame(2)">🌍 Distância x2</button>
+    <button class="menu-btn" onclick="startGame(3)">🌌 Distância x3</button>
+    <button class="menu-btn" onclick="startGame(5)">🪐 Distância x5</button>
+  </div>
+</div>
+
+  <script>
+    function startGame(factor) {
+      window.location.href = 'Pages/GamePage.html';
+    }
+  </script>
+</body>
+</html>
