@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AR.js A-Frame Solar Quiz</title>
+
+  <!-- A-Frame and AR.js Libraries -->
+  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/three.js/build/ar-threex-location-only.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+
+  <!-- Link to your CSS file -->
+  <link rel="stylesheet" href="../css/styleVH.css" />
+</head>
+<body>
+  <!-- Quiz Modal -->
+  <div class="quiz-modal" id="quizModal">
+    <div class="quiz-content">
+      <h1 id="quizPlanetName"></h1>
+      <h2 id="quizQuestion"></h2>
+      <div id="quizAnswers"></div>
+    </div>
+  </div>
+
+  <!-- Info Panel (on planet click) -->
+  <div id="info-panel">
+    <span id="info-text"></span><br><br>
+    <button onclick="document.getElementById('info-panel').style.display='none'">
+      Fechar
+    </button>
+  </div>
+
+  <!-- Distance Display -->
+  <div id="distanceDisplay">Procurando planetas...</div>
+
+  <!-- Score Display -->
+  <div id="scoreDisplay">Pontuação: 0</div>
+
+  <!-- A-Frame Scene -->
+  <a-scene vr-mode-ui="enabled: false" 
+           arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false">
+    <a-camera gps-new-camera="gpsMinDistance: 1" planet-distance-tracker></a-camera>
+  </a-scene>
+
+  
+  <!-- JavaScript  -->
+  <script src="../js/utils.js"></script>
+  <script src="../js/script.js"></script>
+  <script src="../js/componentsV2.js"></script>
+  <script src="../js/initializerX2.js"></script>
+</body>
+</html>
