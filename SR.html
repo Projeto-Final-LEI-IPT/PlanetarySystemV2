@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AR.js — Location-based Sphere on a Ring</title>
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <!-- AR.js for A-Frame (location-based) -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+  <style>
+    body {margin:0; font-family:monospace; background:#111; color:#eee;}
+    .hint {position:fixed;left:10px;top:10px;z-index:999;padding:8px 12px;background:rgba(0,0,0,0.5);border-radius:6px;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="hint">Move to the specified GPS coordinates to see the AR content appear. Ensure GPS and camera permissions are enabled.</div>
+
+  <!-- A-Frame Scene with AR.js location-based -->
+  <a-scene embedded arjs='sourceType: webcam; trackingMethod: best; debugUIEnabled: false; gpsMinDistance: 5;'>
+
+    <!-- Example location entity: set latitude/longitude where the ring and sphere should appear -->
+    <a-entity gps-entity-place="latitude: 37.7749; longitude: -122.4194;">
+
+      <!-- Ring -->
+      <a-ring id="ring" position="0 0 0" rotation="-90 0 0" radius-inner="0.35" radius-outer="0.4" segments="64"
+              material="color: #33ccff; metalness: 0.1; roughness: 0.6; opacity: 0.9"></a-ring>
+
+      <!-- Moving sphere -->
+      <a-sphere id="movingSphere" radius="0.05" position="0 0.06 0"
+                material="color: #ff3366; emissive: #ff3366; emissiveIntensity: 0.3">
+      </a-sphere>
+
+    </a-entity>
+
+    <!-- Camera with GPS support -->
+    <a-camera gps-camera rotation-reader></a-camera>
+  </a-scene>
+
+  <script>
+    AFRAME.registerComponent('move-on-ring', {
+      schema: {
+        radius: {type: 'number', default: 0.375},
+        speed:  {type: 'number', default: 1.2},
+        height: {type: 'number', default: 0.06},
+        clockwise: {type: 'boolean', default: false},
+        startAngle: {type: 'number', default: 0}
+      },
+      init: function () { this.startTime = null; },
+      tick: function (time, timeDelta) {
+        if (this.startTime === null) this.startTime = time;
+        var t = (time - this.startTime) / 1000;
+        var s = this.data.speed * (this.data.clockwise ? -1 : 1);
+        var angle = this.data.startAngle + s * t;
+        var x = this.data.radius * Math.cos(angle);
+        var z = this.data.radius * Math.sin(angle);
+        this.el.setAttribute('position', { x: x, y: this.data.height, z: z });
+        var tangentAngle = angle + Math.PI / 2;
+        var rotationY = THREE.Math.radToDeg(-tangentAngle);
+        this.el.setAttribute('rotation', { x: 0, y: rotationY, z: 0 });
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', function () {
+      var sphere = document.querySelector('#movingSphere');
+      sphere.setAttribute('move-on-ring', 'radius: 0.375; speed: 1.5; height: 0.06; clockwise: false; startAngle: 0');
+      var ring = document.querySelector('#ring');
+      ring.setAttribute('animation__pulse', 'property: scale; dir: alternate; dur: 1200; loop: true; to: 1.02 1.02 1; easing: easeInOutQuad');
+    });
+  </script>
+
+</body>
+</html>
