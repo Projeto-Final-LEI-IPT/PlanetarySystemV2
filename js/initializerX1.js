@@ -1,6 +1,6 @@
 async function initPlanets() {
   try {
-    const response = await fetch('../SystemData.json');
+    const response = await fetch('../data/SystemDataX1.json');
     const data = await response.json();
 
     if (navigator.geolocation) {
