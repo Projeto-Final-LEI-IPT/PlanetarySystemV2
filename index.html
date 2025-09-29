@@ -103,9 +103,43 @@
 </div>
 
   <script>
-    function startGame(factor) {
-      window.location.href = 'Pages/GamePage.html';
+    
+   function startGame(factor) {
+    let page = "";
+
+    switch (factor) {
+      case 1:
+        page = "Pages/GamePageX1.html";
+        break;
+      case 2:
+        page = "Pages/GamePageX2.html";
+        break;
+      case 3:
+        page = "Pages/GamePageX3.html";
+        break;
+      case 5:
+        page = "Pages/GamePageX5.html";
+        break;
+      default:
+        page = "Pages/GamePageX1.html"; // fallback
     }
+
+    window.location.href = page;
+  }
+}
+
+
+    function toggleInstructions() {
+  const instr = document.getElementById("instructions");
+  instr.style.display = (instr.style.display === "block") ? "none" : "block";
+}
+
+function toggleDistanceMenu() {
+  const menu = document.getElementById("distanceMenu");
+  menu.style.display = (menu.style.display === "block") ? "none" : "block";
+}
+
   </script>
+  
 </body>
 </html>
