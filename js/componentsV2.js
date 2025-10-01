@@ -145,7 +145,7 @@ AFRAME.registerComponent('show-plane', {
     this.el.addEventListener('click', () => {
       const panel = document.getElementById('info-panel');
       const text = document.getElementById('info-text');
-      text.innerHTML = `<strong>${this.data.name}</strong><br><img src="${this.data.image}" style="max-width:100%; border-radius:10px;"/><br><br>${this.data.desc || "Sem descrição disponível."}`;
+      text.innerHTML = `<strong>${this.data.name}</strong><br>${this.data.desc || "Sem descrição disponível."}`;
       panel.style.display = 'block';
     });
   }
