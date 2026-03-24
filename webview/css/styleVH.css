@@ -1,0 +1,143 @@
+/* Reset */
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+/* A-Frame canvas */
+canvas {
+  z-index: 0 !important;
+  position: relative;
+}
+
+/* =========================
+   QUIZ MODAL
+========================= */
+.quiz-modal {
+  position: fixed;
+  top: -999px;
+  left: -999px;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+.quiz-modal.show {
+  top: 0;
+  left: 0;
+}
+.quiz-content {
+  background: white;
+  padding: 2vh;
+  width: 90%;
+  max-width: 450px;
+  border-radius: 2vh;
+  text-align: center;
+  font-size: 2.5vh; /* relativo à altura */
+}
+.quiz-answer {
+  display: block;
+  padding: 1em;
+  margin: 1em auto;
+  width: 100%;
+  background: #eee;
+  border: none;
+  border-radius: 1em;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 2vh;
+}
+.quiz-answer:hover { background: #ddd; }
+.quiz-answer.correct { background-color: #4CAF50; color: white; }
+.quiz-answer.incorrect { background-color: #f44336; color: white; }
+
+/* =========================
+   INFO PANEL
+========================= */
+#info-panel {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.9);
+  color: white;
+  padding: 2vh;
+  border-radius: 2vh;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  font-size: 2vh;
+}
+#info-text {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1em;
+}
+#info-panel button {
+  background: red;
+  color: white;
+  border: none;
+  padding: 1em;
+  cursor: pointer;
+  border-radius: 1em;
+  font-size: 2vh;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* =========================
+   HUD (score + distance)
+========================= */
+#distanceDisplay, #scoreDisplay {
+  position: fixed;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 1vh 2vw;
+  border-radius: 1em;
+  font-size: 2vh;
+  z-index: 9999;
+  pointer-events: none;
+  text-align: center;
+}
+#distanceDisplay {
+  bottom: 2vh;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#scoreDisplay {
+  top: 2vh;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* =========================
+   RESPONSIVE ORIENTATION
+========================= */
+@media screen and (orientation: portrait) {
+  .quiz-content, #info-panel {
+    max-width: 400px;
+    font-size: 2.2vh;
+  }
+  #distanceDisplay, #scoreDisplay {
+    font-size: 2vh;
+  }
+}
+@media screen and (orientation: landscape) {
+  .quiz-content, #info-panel {
+    max-width: 600px;
+    font-size: 2vw; /* em horizontal, largura manda mais */
+  }
+  #distanceDisplay, #scoreDisplay {
+    font-size: 2vw;
+  }
+}

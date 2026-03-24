@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solar System AR Quiz</title>
+  <style>
+    /* O ecrã fica todo preto para combinar com a App enquanto o jogo não carrega */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #000000;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    // Esta função fica "à escuta" das ordens que vêm do React Native
+    window.startGame = function(factor) {
+      let page = "Pages/GamePageX1.html"; // Caminho por defeito
+      
+      switch (factor) {
+        case 1:
+          page = "Pages/GamePageX1.html";
+          break;
+        case 2:
+          page = "Pages/GamePageX2.html";
+          break;
+        case 3:
+          page = "Pages/GamePageX3.html";
+          break;
+        case 5:
+          page = "Pages/GamePageX5.html";
+          break;
+      }
+      
+      // Redireciona a WebView para o código do jogo AR
+      window.location.href = page;
+    };
+  </script>
+</body>
+</html>
