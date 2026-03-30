@@ -5,9 +5,13 @@ AFRAME.registerComponent('dynamic-movement', {
     speed: { type: 'number', default: 0.00001 },
     originLat: { type: 'number' },
     originLon: { type: 'number' },
-    distance: { type: 'number' }
+    distance: { type: 'number' },
+    startAngle: { type: 'number', default: 0 } // Nova propriedade para receber o ângulo
   },
-  init() { this.angle = 0; },
+  init() { 
+    // Começa no ângulo aleatório gerado no script.js
+    this.angle = this.data.startAngle; 
+  },
   tick(time, timeDelta) {
     if (this.data.type === "spin") {
       this.angle += this.data.speed * timeDelta;

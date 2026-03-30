@@ -5,9 +5,13 @@ AFRAME.registerComponent('dynamic-movement', {
     speed: { type: 'number', default: 0.00001 },
     originLat: { type: 'number' },
     originLon: { type: 'number' },
-    distance: { type: 'number' }
+    distance: { type: 'number' },
+    startAngle: { type: 'number', default: 0 } // Nova propriedade para receber o ângulo
   },
-  init() { this.angle = 0; },
+  init() { 
+    // Começa no ângulo aleatório gerado no script.js
+    this.angle = this.data.startAngle; 
+  },
   tick(time, timeDelta) {
     if (this.data.type === "spin") {
       this.angle += this.data.speed * timeDelta;
@@ -30,10 +34,9 @@ AFRAME.registerComponent('proximity-check', {
     this.questions = JSON.parse(this.data.questions);
     this.currentQuestionIndex = 0;
     this.triggeredOnce = false;
-    this.completed = false;
   },
   tick() {
-    if (this.triggeredOnce || this.completed) return;
+    if (this.triggeredOnce || this.currentQuestionIndex >= this.questions.length) return;
 
     const camera = document.querySelector('[gps-new-camera]');
     const gpsComponent = camera.components['gps-new-camera'];
@@ -69,8 +72,6 @@ AFRAME.registerComponent('proximity-check', {
     qText.textContent = questionData.question;
     answersContainer.innerHTML = '';
 
-    const planetEl = this.el;
-
     questionData.answers.forEach((answer, i) => {
       const btn = document.createElement('button');
       btn.className = 'quiz-answer';
@@ -86,10 +87,8 @@ AFRAME.registerComponent('proximity-check', {
           score += pontos;
           pontos = 4;
           updateScoreDisplay();
-
-          showCompletionMark(planetEl);
-          
-          this.completed = true;
+          this.currentQuestionIndex++;
+          this.triggeredOnce = this.currentQuestionIndex >= this.questions.length;
           setTimeout(() => modal.classList.remove('show'), 1000);
         } else {
           btn.classList.add('incorrect');
@@ -145,7 +144,7 @@ AFRAME.registerComponent('show-plane', {
     this.el.addEventListener('click', () => {
       const panel = document.getElementById('info-panel');
       const text = document.getElementById('info-text');
-      text.innerHTML = `<strong>${this.data.name}</strong><br>${this.data.desc || "Sem descrição disponível."}`;
+      text.innerHTML = `<strong>${this.data.name}</strong><br><img src="${this.data.image}" style="max-width:100%; border-radius:10px;"/><br><br>${this.data.desc || "Sem descrição disponível."}`;
       panel.style.display = 'block';
     });
   }

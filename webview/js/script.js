@@ -23,7 +23,12 @@ function createPlanets(userLat, userLon, data) {
   const scene = document.querySelector("a-scene");
 
   planetData.forEach((planet) => {
-    const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 0);
+    // 1. Gera um ângulo inicial aleatório entre 0 e 360
+    const startAngle = Math.random() * 360;
+
+    // 2. Usa esse ângulo para calcular a posição inicial correta
+    const coords = computeOffset(userLat, userLon, planet.distanciafoco1, startAngle);
+    
     const entity = document.createElement("a-entity");
     entity.setAttribute("cursor", "rayOrigin:mouse");
 
@@ -38,8 +43,12 @@ function createPlanets(userLat, userLon, data) {
 
     if (planet.speed > 0) {
       sphere.setAttribute("dynamic-movement", {
-        type: "spin", speed: planet.speed,
-        originLat: userLat, originLon: userLon, distance: planet.distanciafoco1
+        type: "spin", 
+        speed: planet.speed,
+        originLat: userLat, 
+        originLon: userLon, 
+        distance: planet.distanciafoco1,
+        startAngle: startAngle // 3. Passa o ângulo para o componente de movimento
       });
       createOrbitRing(userLat, userLon, planet.distanciafoco1);
     }
