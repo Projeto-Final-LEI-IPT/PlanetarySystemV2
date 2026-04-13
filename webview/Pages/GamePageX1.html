@@ -39,9 +39,12 @@
 
   <!-- A-Frame Scene -->
   <a-scene vr-mode-ui="enabled: false" 
-           arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false">
-    <a-camera gps-new-camera="gpsMinDistance: 1" planet-distance-tracker></a-camera>
-  </a-scene>
+         arjs="sourceType: webcam; 
+               videoTexture: true; 
+               debugUIEnabled: false; 
+               sourceParameters: { facingMode: 'environment' }">
+  <a-camera gps-new-camera="gpsMinDistance: 1" planet-distance-tracker></a-camera>
+</a-scene>
 
   
   <!-- JavaScript  -->
