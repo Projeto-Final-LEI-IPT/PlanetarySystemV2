@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-// Movement around orbit
-AFRAME.registerComponent('dynamic-movement', {
-  schema: {
-    type: { type: 'string' },
-    speed: { type: 'number', default: 0.00001 },
-    originLat: { type: 'number' },
-    originLon: { type: 'number' },
-    distance: { type: 'number' }
-  },
-  init() { this.angle = 0; },
-  tick(time, timeDelta) {
-    if (this.data.type === "spin") {
-      this.angle += this.data.speed * timeDelta;
-      // Keep angle in 0–360 range
-      if (this.angle >= 360) this.angle -= 360;
-      const newCoords = computeOffset(this.data.originLat, this.data.originLon, this.data.distance, this.angle * (180 / Math.PI));
-      this.el.setAttribute('gps-new-entity-place', { latitude: newCoords.lat, longitude: newCoords.lon });
-=======
 // ===========================================
 // COMPONENTES A-FRAME (VERSÃO 2)
 // ===========================================
@@ -64,29 +45,10 @@ AFRAME.registerComponent('dynamic-movement', {
         latitude: newCoords.lat,
         longitude: newCoords.lon
       });
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
     }
   }
 });
 
-<<<<<<< HEAD
-// Quiz trigger when close to planet
-AFRAME.registerComponent('proximity-check', {
-  schema: {
-    range: { type: 'number', default: 1 },
-    questions: { type: 'string', default: '[]' },
-    triggered: { type: 'boolean', default: false }
-  },
-  init() {
-    this.questions = JSON.parse(this.data.questions);
-    this.currentQuestionIndex = 0;
-    this.triggeredOnce = false;
-    this.completed = false;
-  },
-  tick() {
-    if (this.triggeredOnce || this.completed) return;
-
-=======
 // ================================
 // Componente: Verificação de Proximidade (Versão Melhorada)
 // ================================
@@ -116,17 +78,10 @@ AFRAME.registerComponent('proximity-check', {
     if (this.triggeredOnce || this.completed) return;
 
     // Obtém a câmara GPS do utilizador
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
     const camera = document.querySelector('[gps-new-camera]');
     const gpsComponent = camera.components['gps-new-camera'];
     if (!gpsComponent || !gpsComponent._currentPosition) return;
 
-<<<<<<< HEAD
-    const camCoords = gpsComponent._currentPosition;
-    const entityCoords = this.el.getAttribute('gps-new-entity-place');
-    if (!entityCoords) return;
-
-=======
     // Obtém as coordenadas GPS do utilizador
     const camCoords = gpsComponent._currentPosition;
     
@@ -135,7 +90,6 @@ AFRAME.registerComponent('proximity-check', {
     if (!entityCoords) return;
 
     // Calcula a distância entre o utilizador e o planeta
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
     const dist = getDistanceFromLatLonInM(
       camCoords.latitude,
       camCoords.longitude,
@@ -143,14 +97,6 @@ AFRAME.registerComponent('proximity-check', {
       entityCoords.longitude
     );
 
-<<<<<<< HEAD
-    if (dist <= this.data.range) {
-      this.triggeredOnce = true;
-      this.showQuestion();
-    }
-  },
-  showQuestion() {
-=======
     // Se o utilizador está dentro do intervalo de proximidade, mostra o quiz
     if (dist <= this.data.range) {
       this.triggeredOnce = true;  // Marca para não disparar novamente
@@ -161,24 +107,10 @@ AFRAME.registerComponent('proximity-check', {
   // Mostra a pergunta do quiz ao utilizador
   showQuestion() {
     // Seleciona uma pergunta aleatória do array de perguntas
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
     const randomIndex = Math.floor(Math.random() * this.questions.length);
     const questionData = this.questions[randomIndex];
     if (!questionData) return;
 
-<<<<<<< HEAD
-    const modal = document.getElementById('quizModal');
-    const planetTitle = document.getElementById('quizPlanetName');
-    planetTitle.textContent = this.el.getAttribute('name') || 'Planeta';
-    const qText = document.getElementById('quizQuestion');
-    const answersContainer = document.getElementById('quizAnswers');
-
-    qText.textContent = questionData.question;
-    answersContainer.innerHTML = '';
-
-    const planetEl = this.el;
-
-=======
     // Obtém os elementos da interface do modal de quiz
     const modal = document.getElementById('quizModal');
     const planetTitle = document.getElementById('quizPlanetName');
@@ -198,39 +130,18 @@ AFRAME.registerComponent('proximity-check', {
     const planetEl = this.el;
 
     // Cria um botão para cada resposta possível
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
     questionData.answers.forEach((answer, i) => {
       const btn = document.createElement('button');
       btn.className = 'quiz-answer';
       btn.textContent = answer;
 
-<<<<<<< HEAD
-      btn.addEventListener('click', () => {
-=======
       // Adiciona um listener para quando o utilizador clica numa resposta
       btn.addEventListener('click', () => {
         // Evita cliques múltiplos no mesmo botão
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
         if (btn.classList.contains('clicked')) return;
         btn.classList.add('clicked');
         btn.disabled = true;
 
-<<<<<<< HEAD
-        if (i === questionData.rightAnswer) {
-          btn.classList.add('correct');
-          score += pontos;
-          pontos = 4;
-          updateScoreDisplay();
-
-          showCompletionMark(planetEl);
-          
-          this.completed = true;
-          setTimeout(() => modal.classList.remove('show'), 1000);
-        } else {
-          btn.classList.add('incorrect');
-          pontos -= 1;
-          updateScoreDisplay();
-=======
         // Verifica se é a resposta correta
         if (i === questionData.rightAnswer) {
           // Resposta correta: adiciona pontos e marca como verde
@@ -252,25 +163,16 @@ AFRAME.registerComponent('proximity-check', {
           btn.classList.add('incorrect');
           pontos -= 1;          // Subtrai um ponto pela resposta incorreta
           updateScoreDisplay(); // Atualiza o display da pontuação
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
         }
       });
       answersContainer.appendChild(btn);
     });
 
-<<<<<<< HEAD
-=======
     // Mostra o modal de quiz
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
     modal.classList.add('show');
   }
 });
 
-<<<<<<< HEAD
-// Track distance to nearest planet
-AFRAME.registerComponent('planet-distance-tracker', {
-  tick() {
-=======
 // ================================
 // Componente: Rastreador de Distância
 // ================================
@@ -279,21 +181,10 @@ AFRAME.registerComponent('planet-distance-tracker', {
   // Função chamada a cada fotograma para atualizar a distância
   tick() {
     // Obtém a câmara GPS do utilizador
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
     const camera = document.querySelector('[gps-new-camera]');
     const gpsComponent = camera.components['gps-new-camera'];
     if (!gpsComponent || !gpsComponent._currentPosition) return;
 
-<<<<<<< HEAD
-    const camCoords = gpsComponent._currentPosition;
-    const planets = document.querySelectorAll('[gps-new-entity-place]');
-
-    let closest = null, minDistance = Infinity;
-
-    planets.forEach((planet) => {
-      const entityCoords = planet.getAttribute('gps-new-entity-place');
-      if (!entityCoords) return;
-=======
     // Obtém as coordenadas GPS do utilizador
     const camCoords = gpsComponent._currentPosition;
     
@@ -309,28 +200,18 @@ AFRAME.registerComponent('planet-distance-tracker', {
       if (!entityCoords) return;
       
       // Calcula a distância até este planeta
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
       const dist = getDistanceFromLatLonInM(
         camCoords.latitude, camCoords.longitude,
         entityCoords.latitude, entityCoords.longitude
       );
-<<<<<<< HEAD
-=======
       
       // Atualiza o planeta mais próximo se encontrar um mais perto
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
       if (dist < minDistance) {
         minDistance = dist;
         closest = planet;
       }
     });
 
-<<<<<<< HEAD
-    const display = document.getElementById('distanceDisplay');
-    if (closest && minDistance < 1000) {
-      display.textContent = `${Math.round(minDistance)} metros até ${closest.getAttribute('name') || 'um planeta'}`;
-    } else if (closest) {
-=======
     // Obtém o elemento para apresentar a distância
     const display = document.getElementById('distanceDisplay');
     
@@ -340,22 +221,11 @@ AFRAME.registerComponent('planet-distance-tracker', {
       display.textContent = `${Math.round(minDistance)} metros até ${closest.getAttribute('name') || 'um planeta'}`;
     } else if (closest) {
       // Se há um planeta mas está longe, mostra uma mensagem genérica
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
       display.textContent = `Aproximando-se de ${closest.getAttribute('name') || 'um planeta'}`;
     }
   }
 });
 
-<<<<<<< HEAD
-// Show info panel on click
-AFRAME.registerComponent('show-plane', {
-  schema: { name: { type: 'string' }, desc: { type: 'string' }, image: { type: 'string' } },
-  init() {
-    this.el.addEventListener('click', () => {
-      const panel = document.getElementById('info-panel');
-      const text = document.getElementById('info-text');
-      text.innerHTML = `<strong>${this.data.name}</strong><br>${this.data.desc || "Sem descrição disponível."}`;
-=======
 // ================================
 // Componente: Mostrar Painel de Informações
 // ================================
@@ -380,7 +250,6 @@ AFRAME.registerComponent('show-plane', {
       text.innerHTML = `<strong>${this.data.name}</strong><br>${this.data.desc || "Sem descrição disponível."}`;
       
       // Mostra o painel de informações
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
       panel.style.display = 'block';
     });
   }
