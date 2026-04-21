@@ -18,29 +18,28 @@
 </head>
 
 <body>
+<body>
   <script>
-    // Esta função fica "à escuta" das ordens que vêm do React Native
     window.startGame = function(factor) {
-      let page = "Pages/GamePageX1.html"; // Caminho por defeito
-      
+      let page = "Pages/GamePageX1.html";
       switch (factor) {
-        case 1:
-          page = "Pages/GamePageX1.html";
-          break;
-        case 2:
-          page = "Pages/GamePageX2.html";
-          break;
-        case 3:
-          page = "Pages/GamePageX3.html";
-          break;
-        case 5:
-          page = "Pages/GamePageX5.html";
-          break;
+        case 1: page = "Pages/GamePageX1.html"; break;
+        case 2: page = "Pages/GamePageX2.html"; break;
+        case 3: page = "Pages/GamePageX3.html"; break;
+        case 5: page = "Pages/GamePageX5.html"; break;
       }
-      
-      // Redireciona a WebView para o código do jogo AR
       window.location.href = page;
     };
+
+    // INSTALAR O MODO OFFLINE (SERVICE WORKER)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Modo Offline ativado!', reg))
+          .catch(err => console.error('Erro na cache offline', err));
+      });
+    }
   </script>
+</body>
 </body>
 </html>
