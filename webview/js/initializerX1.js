@@ -14,9 +14,9 @@ async function initPlanets() {
     const response = await fetch('../data/SystemDataX1.json');
     const data = await response.json();
 
-    // Reduzimos as distâncias em 30% para aproximar os planetas
+    // Reduzimos as distâncias em 90% para deixar os planetas muito próximos
     data.planets.forEach(p => {
-      p.distanciafoco1 *= 0.7;
+      p.distanciafoco1 *= 0.1;
     });
 
     // Verifica se o navegador suporta Geolocalização

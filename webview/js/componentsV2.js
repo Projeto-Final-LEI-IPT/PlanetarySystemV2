@@ -21,7 +21,6 @@ AFRAME.registerComponent('dynamic-movement', {
   
   tick(time, timeDelta) {
     if (this.data.type === "spin") {
-      // Aumentamos o multiplicador para 1000000 para tornar o movimento bem mais rápido
       this.angle += (this.data.speed * 1000000) * (timeDelta / 1000);
       if (this.angle >= 360) this.angle -= 360;
       
@@ -58,13 +57,13 @@ AFRAME.registerComponent('proximity-check', {
   init() {
     this.questions = JSON.parse(this.data.questions);
     this.triggered = false;
+    this.isCompleted = false; // Propriedade interna extra para garantia
   },
   
   tick() {
     const planetName = this.el.getAttribute('name');
     
-    // Se já completou, garante que a órbita fica verde e para aqui
-    if (this.data.completed) {
+    if (this.data.completed || this.isCompleted) {
       updateOrbitColor(planetName, "#00ff00", 0.7);
       return;
     }
@@ -132,7 +131,8 @@ AFRAME.registerComponent('proximity-check', {
           pontos = 4;
           updateScoreDisplay();
 
-          // Marcamos como completo no componente
+          // Marcamos como completo em todos os sítios possíveis
+          this.isCompleted = true;
           planetEl.setAttribute('proximity-check', 'completed', true);
           
           showCompletionMark(planetEl, planetName);
@@ -160,15 +160,20 @@ AFRAME.registerComponent('planet-distance-tracker', {
 
     const camCoords = gpsComponent._currentPosition;
     
-    // Lista de entidades que têm o componente de proximidade
+    // Obter todos os planetas com quiz
     const planets = Array.from(document.querySelectorAll('[proximity-check]'));
 
-    // Encontra o próximo planeta que NÃO está completado
-    let targetPlanet = planets.find(planet => {
+    // Ordenar planetas por distância original (do JSON) para garantir a ordem Sol -> Mercúrio...
+    // Como eles são adicionados em ordem no script.js, a ordem do DOM deve bastar, 
+    // mas vamos encontrar o primeiro não completo.
+    let targetPlanet = null;
+    for (let planet of planets) {
       const prox = planet.components['proximity-check'];
-      // Acedemos diretamente aos dados do componente para garantir atualização em tempo real
-      return prox && prox.data && !prox.data.completed;
-    });
+      if (prox && !prox.isCompleted && !prox.data.completed) {
+        targetPlanet = planet;
+        break;
+      }
+    }
 
     const display = document.getElementById('distanceDisplay');
 
@@ -209,7 +214,7 @@ AFRAME.registerComponent('show-plane', {
       const gpsComponent = camera.components['gps-new-camera'];
       const proxCheck = this.el.components['proximity-check'];
       
-      if (gpsComponent && gpsComponent._currentPosition && proxCheck && !proxCheck.data.completed) {
+      if (gpsComponent && gpsComponent._currentPosition && proxCheck && !proxCheck.isCompleted && !proxCheck.data.completed) {
         const camCoords = gpsComponent._currentPosition;
         const dynMovement = this.el.components['dynamic-movement'];
         let entityCoords = dynMovement ? dynMovement.currentGPS : this.el.getAttribute('gps-new-entity-place');
