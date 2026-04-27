@@ -14,6 +14,11 @@ async function initPlanets() {
     const response = await fetch('../data/SystemDataX1.json');
     const data = await response.json();
 
+    // Reduzimos as distâncias em 30% para aproximar os planetas
+    data.planets.forEach(p => {
+      p.distanciafoco1 *= 0.7;
+    });
+
     // Verifica se o navegador suporta Geolocalização
     if (navigator.geolocation) {
       // Obtém a posição GPS do utilizador com alta precisão

@@ -16,12 +16,14 @@ AFRAME.registerComponent('dynamic-movement', {
   
   init() {
     this.angle = 0;
-    this.currentGPS = { lat: this.data.originLat, lon: this.data.originLon };
+    // Inicializa com os nomes corretos que o AR.js e as funções de distância esperam
+    this.currentGPS = { latitude: this.data.originLat, longitude: this.data.originLon };
   },
   
   tick(time, timeDelta) {
     if (this.data.type === "spin") {
-      this.angle += (this.data.speed * 100) * (timeDelta / 1000);
+      // Aumentamos o multiplicador para 500000 para tornar o movimento visível
+      this.angle += (this.data.speed * 500000) * (timeDelta / 1000);
       if (this.angle >= 360) this.angle -= 360;
       
       const newCoords = computeOffset(
@@ -31,12 +33,16 @@ AFRAME.registerComponent('dynamic-movement', {
         this.angle
       );
       
-      this.el.setAttribute('gps-new-entity-place', {
-        latitude: newCoords.lat,
-        longitude: newCoords.lon
-      });
+      // Mapeia lat/lon para latitude/longitude para evitar NaN
+      this.currentGPS = { 
+        latitude: newCoords.lat, 
+        longitude: newCoords.lon 
+      };
       
-      this.currentGPS = newCoords;
+      this.el.setAttribute('gps-new-entity-place', {
+        latitude: this.currentGPS.latitude,
+        longitude: this.currentGPS.longitude
+      });
     }
   }
 });
@@ -48,7 +54,7 @@ AFRAME.registerComponent('proximity-check', {
   schema: {
     range: { type: 'number', default: 5 },
     questions: { type: 'string', default: '[]' },
-    completed: { type: 'boolean', default: false } // Estado guardado no schema
+    completed: { type: 'boolean', default: false }
   },
   
   init() {
@@ -59,7 +65,6 @@ AFRAME.registerComponent('proximity-check', {
   tick() {
     const planetName = this.el.getAttribute('name');
     
-    // Se já completou, garante que a órbita fica verde e para aqui
     if (this.data.completed) {
       updateOrbitColor(planetName, "#00ff00", 0.7);
       return;
@@ -71,28 +76,29 @@ AFRAME.registerComponent('proximity-check', {
 
     const camCoords = gpsComponent._currentPosition;
     const dynMovement = this.el.components['dynamic-movement'];
+    
+    // Busca a posição GPS atual (seja estática ou vinda da órbita)
     let entityCoords = dynMovement ? dynMovement.currentGPS : this.el.getAttribute('gps-new-entity-place');
 
-    if (!entityCoords) return;
+    if (!entityCoords || entityCoords.latitude === undefined) return;
 
     const dist = getDistanceFromLatLonInM(
       camCoords.latitude, camCoords.longitude,
       entityCoords.latitude, entityCoords.longitude
     );
 
-    // Lógica de cores da órbita
+    // Se o cálculo falhar por algum motivo, não continua
+    if (isNaN(dist)) return;
+
     if (dist <= this.data.range) {
-      // No raio do quiz: Amarelo brilhante
       updateOrbitColor(planetName, "#ffff00", 0.8);
       if (!this.triggered) {
         this.triggered = true;
         this.showQuestion();
       }
     } else if (dist <= 50) {
-      // Perto: Amarelo suave
       updateOrbitColor(planetName, "#ffff00", 0.4);
     } else {
-      // Longe: Branco
       updateOrbitColor(planetName, "#ffffff", 0.3);
     }
   },
@@ -130,11 +136,8 @@ AFRAME.registerComponent('proximity-check', {
           pontos = 4;
           updateScoreDisplay();
 
-          // MARCAR COMO COMPLETADO NO SCHEMA (O tracker vai ver isto)
           planetEl.setAttribute('proximity-check', 'completed', true);
-          
           showCompletionMark(planetEl, planetName);
-          
           setTimeout(() => modal.classList.remove('show'), 1000);
         } else {
           btn.classList.add('incorrect');
@@ -158,15 +161,11 @@ AFRAME.registerComponent('planet-distance-tracker', {
     if (!gpsComponent || !gpsComponent._currentPosition) return;
 
     const camCoords = gpsComponent._currentPosition;
-    
-    // Lista de planetas na ordem correta
     const planets = Array.from(document.querySelectorAll('[proximity-check]'));
 
-    // Encontra o próximo planeta que NÃO está completado
     let targetPlanet = planets.find(planet => {
-      const proxData = planet.getAttribute('proximity-check');
-      // O getAttribute pode retornar string ou objeto dependendo do estado
-      return proxData && !proxData.completed;
+      const prox = planet.components['proximity-check'];
+      return prox && !prox.data.completed;
     });
 
     const display = document.getElementById('distanceDisplay');
@@ -175,12 +174,15 @@ AFRAME.registerComponent('planet-distance-tracker', {
       const dynMovement = targetPlanet.components['dynamic-movement'];
       let entityCoords = dynMovement ? dynMovement.currentGPS : targetPlanet.getAttribute('gps-new-entity-place');
       
-      if (entityCoords) {
+      if (entityCoords && entityCoords.latitude !== undefined) {
         const dist = getDistanceFromLatLonInM(
           camCoords.latitude, camCoords.longitude,
           entityCoords.latitude, entityCoords.longitude
         );
-        display.textContent = `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
+        
+        if (!isNaN(dist)) {
+          display.textContent = `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
+        }
         display.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
       }
     } else {
@@ -201,6 +203,29 @@ AFRAME.registerComponent('show-plane', {
   },
   init() {
     this.el.addEventListener('click', () => {
+      // Verifica a distância atual antes de decidir o que mostrar
+      const camera = document.querySelector('[gps-new-camera]');
+      const gpsComponent = camera.components['gps-new-camera'];
+      const proxCheck = this.el.components['proximity-check'];
+      
+      if (gpsComponent && gpsComponent._currentPosition && proxCheck && !proxCheck.data.completed) {
+        const camCoords = gpsComponent._currentPosition;
+        const dynMovement = this.el.components['dynamic-movement'];
+        let entityCoords = dynMovement ? dynMovement.currentGPS : this.el.getAttribute('gps-new-entity-place');
+
+        const dist = getDistanceFromLatLonInM(
+          camCoords.latitude, camCoords.longitude,
+          entityCoords.latitude, entityCoords.longitude
+        );
+
+        // Se estiver a menos de 10 metros e clicar, abre o quiz
+        if (dist <= 10) {
+          proxCheck.showQuestion();
+          return;
+        }
+      }
+
+      // Caso contrário (mais longe ou já completado), mostra o painel de info
       const panel = document.getElementById('info-panel');
       const text = document.getElementById('info-text');
       text.innerHTML = `<strong>${this.data.name}</strong><br>${this.data.desc || "Sem descrição disponível."}`;
