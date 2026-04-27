@@ -9,42 +9,45 @@
 // Regista um componente A-Frame que permite o movimento orbital dos planetas
 // Os planetas orbitam à volta de um ponto de origem com uma velocidade configurável
 AFRAME.registerComponent('dynamic-movement', {
-  // Esquema de dados para o componente
   schema: {
-    type: { type: 'string' },              // Tipo de movimento (ex: "spin")
-    speed: { type: 'number', default: 0.00001 },  // Velocidade de rotação
-    originLat: { type: 'number' },          // Latitude do ponto de origem
-    originLon: { type: 'number' },          // Longitude do ponto de origem
-    distance: { type: 'number' }            // Distância em metros da órbita
+    type: { type: 'string' },
+    speed: { type: 'number', default: 0.00001 },
+    originLat: { type: 'number' },
+    originLon: { type: 'number' },
+    distance: { type: 'number' }
   },
   
-  // Inicialização do componente
   init() {
-    this.angle = 0;  // Ângulo inicial em graus
+    this.angle = 0;
+    // Guardamos a posição inicial para cálculos de proximidade sem saltos
+    this.currentGPS = { lat: this.data.originLat, lon: this.data.originLon };
   },
   
-  // Função chamada a cada fotograma para atualizar a posição
   tick(time, timeDelta) {
     if (this.data.type === "spin") {
-      // Incrementa o ângulo de acordo com a velocidade
-      this.angle += this.data.speed * timeDelta;
+      // Aumentamos o ângulo. Multiplicamos a velocidade para um movimento visível
+      // speed no JSON é pequena, então ajustamos para graus/segundo
+      this.angle += (this.data.speed * 100) * (timeDelta / 1000);
       
-      // Mantém o ângulo entre 0 e 360 graus
       if (this.angle >= 360) this.angle -= 360;
       
-      // Calcula as novas coordenadas da órbita usando as coordenadas GPS
+      // Em vez de setAttribute('gps-new-entity-place'), calculamos a posição 
+      // mas apenas atualizamos o GPS logicamente se necessário.
+      // Para o movimento visual ser estável, usamos a transposição local do A-Frame
+      const x = this.data.distance * Math.cos(this.angle * Math.PI / 180);
+      const z = this.data.distance * Math.sin(this.angle * Math.PI / 180);
+      
+      // Aplicamos a posição relativa ao ponto de origem GPS
+      this.el.setAttribute('position', `${x} 0 ${z}`);
+      
+      // Atualizamos as coordenadas lógicas para o proximity-check saber onde o planeta está
       const newCoords = computeOffset(
         this.data.originLat,
         this.data.originLon,
         this.data.distance,
-        this.angle * (180 / Math.PI)
+        this.angle
       );
-      
-      // Atualiza a posição do elemento no mapa
-      this.el.setAttribute('gps-new-entity-place', {
-        latitude: newCoords.lat,
-        longitude: newCoords.lon
-      });
+      this.currentGPS = newCoords;
     }
   }
 });
@@ -190,34 +193,27 @@ AFRAME.registerComponent('proximity-check', {
 // ================================
 // Regista um componente A-Frame que calcula e apresenta a distância até ao planeta mais próximo
 AFRAME.registerComponent('planet-distance-tracker', {
-  // Função chamada a cada fotograma para atualizar a distância
   tick() {
-    // Obtém a câmara GPS do utilizador
     const camera = document.querySelector('[gps-new-camera]');
     const gpsComponent = camera.components['gps-new-camera'];
     if (!gpsComponent || !gpsComponent._currentPosition) return;
 
-    // Obtém as coordenadas GPS do utilizador
     const camCoords = gpsComponent._currentPosition;
-    
-    // Obtém todos os planetas da cena
-    const planets = document.querySelectorAll('[gps-new-entity-place]');
+    const planets = document.querySelectorAll('[name]'); // Busca por elementos com nome (planetas)
 
-    // Variáveis para rastrear o planeta mais próximo
     let closest = null, minDistance = Infinity;
 
-    // Percorre todos os planetas para encontrar o mais próximo
     planets.forEach((planet) => {
-      const entityCoords = planet.getAttribute('gps-new-entity-place');
+      const dynMovement = planet.components['dynamic-movement'];
+      let entityCoords = dynMovement ? dynMovement.currentGPS : planet.getAttribute('gps-new-entity-place');
+      
       if (!entityCoords) return;
       
-      // Calcula a distância até este planeta
       const dist = getDistanceFromLatLonInM(
         camCoords.latitude, camCoords.longitude,
         entityCoords.latitude, entityCoords.longitude
       );
       
-      // Atualiza o planeta mais próximo se encontrar um mais perto
       if (dist < minDistance) {
         minDistance = dist;
         closest = planet;

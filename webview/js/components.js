@@ -15,6 +15,7 @@ AFRAME.registerComponent('dynamic-movement', {
   
   // Inicialização do componente
   init() {
+    //this.angle = 0;  // Ângulo inicial em graus
     this.angle = Math.random() * 360;
   },
   

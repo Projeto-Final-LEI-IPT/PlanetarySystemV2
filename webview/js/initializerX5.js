@@ -1,20 +1,3 @@
-<<<<<<< HEAD
-async function initPlanets() {
-  try {
-    const response = await fetch('../data/SystemDataX5.json');
-    const data = await response.json();
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          createPlanets(position.coords.latitude, position.coords.longitude, data);
-        },
-        (error) => console.error("Erro ao obter localização:", error),
-        { enableHighAccuracy: true }
-      );
-    }
-  } catch (error) {
-=======
 // ===========================================
 // INICIALIZADOR DO SISTEMA PLANETÁRIO - VERSÃO X5
 // ===========================================
@@ -48,15 +31,10 @@ async function initPlanets() {
     }
   } catch (error) {
     // Trata erros ao carregar o ficheiro JSON
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
     console.error("Erro ao carregar system2.json:", error);
   }
 }
 
-<<<<<<< HEAD
-document.addEventListener("DOMContentLoaded", () => {
-  initPlanets();
-=======
 // ================================
 // Inicialização da Página
 // ================================
@@ -66,6 +44,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initPlanets();
   
   // Atualiza o display de pontuação na interface
->>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
   updateScoreDisplay();
 });

@@ -1,6 +1,5 @@
-const CACHE_NAME = 'sistema-solar-v1';
+const CACHE_NAME = 'sistema-solar-v2';
 
-// Lista de todos os ficheiros que queres que funcionem sem net
 const urlsToCache = [
   './',
   './index.html',
@@ -9,11 +8,21 @@ const urlsToCache = [
   './Pages/GamePageX3.html',
   './Pages/GamePageX5.html',
   './js/script.js',
-  './js/components.js',
+  './js/utils.js',
   './js/componentsV2.js',
-  './css/style.css',
-  './SystemData.json',
-  './system2.json'
+  './js/initializerX1.js',
+  './js/initializerX2.js',
+  './js/initializerX3.js',
+  './js/initializerX5.js',
+  './css/styleVH.css',
+  './data/SystemDataX1.json',
+  './data/SystemDataX2.json',
+  './data/SystemDataX3.json',
+  './data/SystemDataX5.json',
+  // Bibliotecas externas para garantir funcionamento offline total
+  'https://aframe.io/releases/1.7.1/aframe.min.js',
+  'https://raw.githack.com/AR-js-org/AR.js/3.4.7/three.js/build/ar-threex-location-only.js',
+  'https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js'
 ];
 
 self.addEventListener('install', event => {
