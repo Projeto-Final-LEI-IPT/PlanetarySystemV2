@@ -19,34 +19,28 @@ AFRAME.registerComponent('dynamic-movement', {
   
   init() {
     this.angle = 0;
-    // Guardamos a posição inicial para cálculos de proximidade sem saltos
     this.currentGPS = { lat: this.data.originLat, lon: this.data.originLon };
   },
   
   tick(time, timeDelta) {
     if (this.data.type === "spin") {
-      // Aumentamos o ângulo. Multiplicamos a velocidade para um movimento visível
-      // speed no JSON é pequena, então ajustamos para graus/segundo
       this.angle += (this.data.speed * 100) * (timeDelta / 1000);
-      
       if (this.angle >= 360) this.angle -= 360;
       
-      // Em vez de setAttribute('gps-new-entity-place'), calculamos a posição 
-      // mas apenas atualizamos o GPS logicamente se necessário.
-      // Para o movimento visual ser estável, usamos a transposição local do A-Frame
-      const x = this.data.distance * Math.cos(this.angle * Math.PI / 180);
-      const z = this.data.distance * Math.sin(this.angle * Math.PI / 180);
-      
-      // Aplicamos a posição relativa ao ponto de origem GPS
-      this.el.setAttribute('position', `${x} 0 ${z}`);
-      
-      // Atualizamos as coordenadas lógicas para o proximity-check saber onde o planeta está
+      // Calculamos as novas coordenadas GPS da órbita
       const newCoords = computeOffset(
         this.data.originLat,
         this.data.originLon,
         this.data.distance,
         this.angle
       );
+      
+      // ATUALIZAMOS O ATRIBUTO GPS (Isto fixa o planeta no mundo real)
+      this.el.setAttribute('gps-new-entity-place', {
+        latitude: newCoords.lat,
+        longitude: newCoords.lon
+      });
+      
       this.currentGPS = newCoords;
     }
   }

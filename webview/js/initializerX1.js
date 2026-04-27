@@ -19,8 +19,9 @@ async function initPlanets() {
       // Obtém a posição GPS do utilizador com alta precisão
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Sucesso: Utiliza as coordenadas obtidas para criar os planetas
-          createPlanets(position.coords.latitude, position.coords.longitude, data);
+          // Deslocamos a origem 5 metros para Norte para o utilizador ver o Sol à frente
+          const startPos = computeOffset(position.coords.latitude, position.coords.longitude, 5, 0);
+          createPlanets(startPos.lat, startPos.lon, data);
         },
         (error) => {
           // Erro: Regista o erro na consola
