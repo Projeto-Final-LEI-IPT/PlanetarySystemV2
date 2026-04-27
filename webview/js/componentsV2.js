@@ -16,14 +16,13 @@ AFRAME.registerComponent('dynamic-movement', {
   
   init() {
     this.angle = 0;
-    // Inicializa com os nomes corretos que o AR.js e as funções de distância esperam
     this.currentGPS = { latitude: this.data.originLat, longitude: this.data.originLon };
   },
   
   tick(time, timeDelta) {
     if (this.data.type === "spin") {
-      // Aumentamos o multiplicador para 500000 para tornar o movimento visível
-      this.angle += (this.data.speed * 500000) * (timeDelta / 1000);
+      // Aumentamos o multiplicador para 1000000 para tornar o movimento bem mais rápido
+      this.angle += (this.data.speed * 1000000) * (timeDelta / 1000);
       if (this.angle >= 360) this.angle -= 360;
       
       const newCoords = computeOffset(
@@ -33,7 +32,6 @@ AFRAME.registerComponent('dynamic-movement', {
         this.angle
       );
       
-      // Mapeia lat/lon para latitude/longitude para evitar NaN
       this.currentGPS = { 
         latitude: newCoords.lat, 
         longitude: newCoords.lon 
@@ -65,6 +63,7 @@ AFRAME.registerComponent('proximity-check', {
   tick() {
     const planetName = this.el.getAttribute('name');
     
+    // Se já completou, garante que a órbita fica verde e para aqui
     if (this.data.completed) {
       updateOrbitColor(planetName, "#00ff00", 0.7);
       return;
@@ -76,8 +75,6 @@ AFRAME.registerComponent('proximity-check', {
 
     const camCoords = gpsComponent._currentPosition;
     const dynMovement = this.el.components['dynamic-movement'];
-    
-    // Busca a posição GPS atual (seja estática ou vinda da órbita)
     let entityCoords = dynMovement ? dynMovement.currentGPS : this.el.getAttribute('gps-new-entity-place');
 
     if (!entityCoords || entityCoords.latitude === undefined) return;
@@ -87,7 +84,6 @@ AFRAME.registerComponent('proximity-check', {
       entityCoords.latitude, entityCoords.longitude
     );
 
-    // Se o cálculo falhar por algum motivo, não continua
     if (isNaN(dist)) return;
 
     if (dist <= this.data.range) {
@@ -136,7 +132,9 @@ AFRAME.registerComponent('proximity-check', {
           pontos = 4;
           updateScoreDisplay();
 
+          // Marcamos como completo no componente
           planetEl.setAttribute('proximity-check', 'completed', true);
+          
           showCompletionMark(planetEl, planetName);
           setTimeout(() => modal.classList.remove('show'), 1000);
         } else {
@@ -161,11 +159,15 @@ AFRAME.registerComponent('planet-distance-tracker', {
     if (!gpsComponent || !gpsComponent._currentPosition) return;
 
     const camCoords = gpsComponent._currentPosition;
+    
+    // Lista de entidades que têm o componente de proximidade
     const planets = Array.from(document.querySelectorAll('[proximity-check]'));
 
+    // Encontra o próximo planeta que NÃO está completado
     let targetPlanet = planets.find(planet => {
       const prox = planet.components['proximity-check'];
-      return prox && !prox.data.completed;
+      // Acedemos diretamente aos dados do componente para garantir atualização em tempo real
+      return prox && prox.data && !prox.data.completed;
     });
 
     const display = document.getElementById('distanceDisplay');
@@ -203,7 +205,6 @@ AFRAME.registerComponent('show-plane', {
   },
   init() {
     this.el.addEventListener('click', () => {
-      // Verifica a distância atual antes de decidir o que mostrar
       const camera = document.querySelector('[gps-new-camera]');
       const gpsComponent = camera.components['gps-new-camera'];
       const proxCheck = this.el.components['proximity-check'];
@@ -218,14 +219,12 @@ AFRAME.registerComponent('show-plane', {
           entityCoords.latitude, entityCoords.longitude
         );
 
-        // Se estiver a menos de 10 metros e clicar, abre o quiz
         if (dist <= 10) {
           proxCheck.showQuestion();
           return;
         }
       }
 
-      // Caso contrário (mais longe ou já completado), mostra o painel de info
       const panel = document.getElementById('info-panel');
       const text = document.getElementById('info-text');
       text.innerHTML = `<strong>${this.data.name}</strong><br>${this.data.desc || "Sem descrição disponível."}`;
