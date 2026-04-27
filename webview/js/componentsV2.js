@@ -199,37 +199,34 @@ AFRAME.registerComponent('planet-distance-tracker', {
     if (!gpsComponent || !gpsComponent._currentPosition) return;
 
     const camCoords = gpsComponent._currentPosition;
-    const planets = document.querySelectorAll('[name]'); // Busca por elementos com nome (planetas)
+    
+    // Obtemos todos os planetas que têm o componente de proximidade (quiz)
+    const planets = Array.from(document.querySelectorAll('[proximity-check]'));
 
-    let closest = null, minDistance = Infinity;
-
-    planets.forEach((planet) => {
-      const dynMovement = planet.components['dynamic-movement'];
-      let entityCoords = dynMovement ? dynMovement.currentGPS : planet.getAttribute('gps-new-entity-place');
-      
-      if (!entityCoords) return;
-      
-      const dist = getDistanceFromLatLonInM(
-        camCoords.latitude, camCoords.longitude,
-        entityCoords.latitude, entityCoords.longitude
-      );
-      
-      if (dist < minDistance) {
-        minDistance = dist;
-        closest = planet;
-      }
+    // Encontramos o PRIMEIRO planeta na lista que ainda não foi completado
+    let targetPlanet = planets.find(planet => {
+      const prox = planet.components['proximity-check'];
+      return prox && !prox.completed;
     });
 
-    // Obtém o elemento para apresentar a distância
     const display = document.getElementById('distanceDisplay');
-    
-    // Atualiza o texto apresentado
-    if (closest && minDistance < 1000) {
-      // Se há um planeta próximo (menos de 1km), mostra a distância em metros
-      display.textContent = `${Math.round(minDistance)} metros até ${closest.getAttribute('name') || 'um planeta'}`;
-    } else if (closest) {
-      // Se há um planeta mas está longe, mostra uma mensagem genérica
-      display.textContent = `Aproximando-se de ${closest.getAttribute('name') || 'um planeta'}`;
+
+    if (targetPlanet) {
+      const dynMovement = targetPlanet.components['dynamic-movement'];
+      let entityCoords = dynMovement ? dynMovement.currentGPS : targetPlanet.getAttribute('gps-new-entity-place');
+      
+      if (entityCoords) {
+        const dist = getDistanceFromLatLonInM(
+          camCoords.latitude, camCoords.longitude,
+          entityCoords.latitude, entityCoords.longitude
+        );
+        
+        display.textContent = `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
+      }
+    } else {
+      // Se todos os planetas foram completados
+      display.textContent = "Sistema Solar Conquistado! Parabéns!";
+      display.style.backgroundColor = "rgba(0, 255, 0, 0.7)";
     }
   }
 });

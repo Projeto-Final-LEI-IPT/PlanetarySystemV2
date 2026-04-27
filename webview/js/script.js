@@ -103,19 +103,24 @@ function createPlanets(userLat, userLon, data) {
       image: planet.image 
     });
 
-    // Se o planeta tem velocidade, adiciona movimento orbital
-    if (planet.speed > 0) {
-      // Adiciona o componente de movimento dinâmico
-      sphere.setAttribute("dynamic-movement", {
-        type: "spin", 
-        speed: planet.speed,
-        originLat: userLat, 
-        originLon: userLon, 
-        distance: planet.distanciafoco1
-      });
+    // Se o planeta tem velocidade ou é o Sol, adiciona um anel (órbita)
+    if (planet.speed > 0 || planet.name === "Sol") {
+      // Para o Sol, criamos um anel pequeno à volta dele (raio ligeiramente maior que o tamanho)
+      const orbitDist = planet.name === "Sol" ? planet.size + 2 : planet.distanciafoco1;
       
-      // Cria o anel visual da órbita (passa o nome do planeta)
-      createOrbitRing(userLat, userLon, planet.distanciafoco1, planet.name);
+      // Adiciona o componente de movimento dinâmico se tiver velocidade
+      if (planet.speed > 0) {
+        sphere.setAttribute("dynamic-movement", {
+          type: "spin", 
+          speed: planet.speed,
+          originLat: userLat, 
+          originLon: userLon, 
+          distance: planet.distanciafoco1
+        });
+      }
+      
+      // Cria o anel visual (órbita) para todos os planetas e para o Sol
+      createOrbitRing(userLat, userLon, orbitDist, planet.name);
     }
 
     // Se o planeta tem perguntas associadas, adiciona o componente de proximidade
