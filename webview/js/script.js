@@ -7,6 +7,9 @@ let score = 0;
 // Pontos atribuídos por resposta correta (pode variar conforme o número de tentativas)
 let pontos = 4;
 
+// Multiplicador de distância para afastar os planetas entre si
+const DISTANCE_MULTIPLIER = 2.0;
+
 // Mapa para rastrear as órbitas por nome do planeta
 // Chave: nome do planeta, Valor: elemento do anel (a-ring)
 let orbitMap = {};
@@ -72,8 +75,11 @@ function createPlanets(userLat, userLon, data) {
 
   // Itera sobre cada planeta para o criar e adicionar à cena
   planetData.forEach((planet) => {
+    // Aplica o multiplicador de distância
+    const orbitDistance = planet.distanciafoco1 * DISTANCE_MULTIPLIER;
+
     // Calcula as coordenadas do planeta usando o ponto de origem
-    const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 0);
+    const coords = computeOffset(userLat, userLon, orbitDistance, 0);
     
     // Cria um elemento entidade A-Frame para conter o planeta
     const entity = document.createElement("a-entity");
@@ -106,7 +112,7 @@ function createPlanets(userLat, userLon, data) {
     // Se o planeta tem velocidade ou é o Sol, adiciona um anel (órbita)
     if (planet.speed > 0 || planet.name === "Sol") {
       // Para o Sol, criamos um anel pequeno à volta dele (raio ligeiramente maior que o tamanho)
-      const orbitDist = planet.name === "Sol" ? planet.size + 2 : planet.distanciafoco1;
+      const orbitDistRing = planet.name === "Sol" ? planet.size + 2 : orbitDistance;
       
       // Adiciona o componente de movimento dinâmico se tiver velocidade
       if (planet.speed > 0) {
@@ -115,12 +121,12 @@ function createPlanets(userLat, userLon, data) {
           speed: planet.speed,
           originLat: userLat, 
           originLon: userLon, 
-          distance: planet.distanciafoco1
+          distance: orbitDistance
         });
       }
       
       // Cria o anel visual (órbita) para todos os planetas e para o Sol
-      createOrbitRing(userLat, userLon, orbitDist, planet.name);
+      createOrbitRing(userLat, userLon, orbitDistRing, planet.name);
     }
 
     // Se o planeta tem perguntas associadas, adiciona o componente de proximidade

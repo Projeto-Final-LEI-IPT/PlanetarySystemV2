@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Testes - App Solar</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            font-family: sans-serif; background: #222;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Moldura de um Telemóvel para testares o visual */
+        #phone-frame {
+            width: 375px; 
+            height: 812px;
+            border: 16px solid #111;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            background: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        
+        /* O teu "GameMenu.tsx" simulado em CSS */
+        #mock-menu {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0B1A2A; color: white; display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10; transition: opacity 0.4s;
+        }
+
+        .logo-placeholder {
+            width: 220px; height: 100px;
+            background: rgba(255,255,255,0.1); border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 40px; border: 1px dashed #4FC3F7;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(79,195,247,0.3);
+            color: #FFFFFF; padding: 16px 20px; width: 80%;
+            margin: 10px 0; border-radius: 12px; font-size: 18px;
+            cursor: pointer; font-weight: 500;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn:hover { background: rgba(79,195,247,0.2); }
+
+        /* A WebView simulada (Onde o jogo corre) */
+        #game-webview {
+            width: 100%; height: 100%; border: none;
+            position: absolute; top: 0; left: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="phone-frame">
+        <iframe id="game-webview" src="index.html"></iframe>
+
+        <div id="mock-menu">
+            <div class="logo-placeholder">Lugar do Logo</div>
+            
+            <button class="btn" onclick="simularCliqueMenu(1)">⚡ Jogo Rápido</button>
+            <button class="btn" onclick="simularCliqueMenu(2)">📍 Distâncias (X2)</button>
+            <button class="btn" onclick="simularCliqueMenu(5)">🪐 Distâncias (X5)</button>
+        </div>
+    </div>
+
+    <script>
+        function simularCliqueMenu(fator) {
+            console.log("A esconder o menu nativo...");
+            
+            // 1. Esconde o menu visualmente
+            const menu = document.getElementById('mock-menu');
+            menu.style.opacity = '0';
+            setTimeout(() => { menu.style.display = 'none'; }, 400);
+
+            // 2. Simula o comando "injectJavaScript" do React Native!
+            const iframe = document.getElementById('game-webview');
+            
+            // Isto é exatamente o que a App faz: acede ao "window" do site e executa a função
+            if (iframe.contentWindow && iframe.contentWindow.startGame) {
+                console.log(`A injetar ordem: window.startGame(${fator}) na WebView`);
+                iframe.contentWindow.startGame(fator);
+            } else {
+                console.error("Erro: A função startGame não foi encontrada no index.html. O iframe já acabou de carregar?");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -85,15 +85,23 @@ AFRAME.registerComponent('proximity-check', {
 
     if (isNaN(dist)) return;
 
+    // ==========================================
+    // NOVA LÓGICA DE CORES DAS ÓRBITAS
+    // ==========================================
+    const distanciaAviso = 15; // Reduzimos de 50m para 15m! Só reage quando estás mesmo a chegar.
+
     if (dist <= this.data.range) {
-      updateOrbitColor(planetName, "#ffff00", 0.8);
+      // O jogador está a interagir com o planeta (< 5m) -> AMARELO FORTE
+      updateOrbitColor(planetName, "#ffaa00", 0.8);
       if (!this.triggered) {
         this.triggered = true;
         this.showQuestion();
       }
-    } else if (dist <= 50) {
-      updateOrbitColor(planetName, "#ffff00", 0.4);
+    } else if (dist <= distanciaAviso) {
+      // O jogador está a aproximar-se (entre 5m e 15m) -> AMARELO
+      updateOrbitColor(planetName, "#ffff00", 0.6); 
     } else {
+      // O jogador está longe do planeta (> 15m) -> BRANCO (Padrão)
       updateOrbitColor(planetName, "#ffffff", 0.3);
     }
   },
@@ -164,8 +172,6 @@ AFRAME.registerComponent('planet-distance-tracker', {
     const planets = Array.from(document.querySelectorAll('[proximity-check]'));
 
     // Ordenar planetas por distância original (do JSON) para garantir a ordem Sol -> Mercúrio...
-    // Como eles são adicionados em ordem no script.js, a ordem do DOM deve bastar, 
-    // mas vamos encontrar o primeiro não completo.
     let targetPlanet = null;
     for (let planet of planets) {
       const prox = planet.components['proximity-check'];

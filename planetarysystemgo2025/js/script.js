@@ -7,6 +7,9 @@ let score = 0;
 // Pontos atribuídos por resposta correta (pode variar conforme o número de tentativas)
 let pontos = 4;
 
+// Multiplicador de distância para afastar os planetas entre si
+const DISTANCE_MULTIPLIER = 2.0;
+
 // ===========================================
 // FUNÇÕES PRINCIPAIS
 // ===========================================
@@ -62,8 +65,11 @@ function createPlanets(userLat, userLon, data) {
 
   // Itera sobre cada planeta para o criar e adicionar à cena
   planetData.forEach((planet) => {
+    // Aplica o multiplicador de distância
+    const orbitDistance = planet.distanciafoco1 * DISTANCE_MULTIPLIER;
+
     // Calcula as coordenadas do planeta usando o ponto de origem
-    const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 0);
+    const coords = computeOffset(userLat, userLon, orbitDistance, 0);
     
     // Cria um elemento entidade A-Frame para conter o planeta
     const entity = document.createElement("a-entity");
@@ -101,11 +107,11 @@ function createPlanets(userLat, userLon, data) {
         speed: planet.speed,
         originLat: userLat, 
         originLon: userLon, 
-        distance: planet.distanciafoco1
+        distance: orbitDistance
       });
       
       // Cria o anel visual da órbita
-      createOrbitRing(userLat, userLon, planet.distanciafoco1);
+      createOrbitRing(userLat, userLon, orbitDistance);
     }
 
     // Se o planeta tem perguntas associadas, adiciona o componente de proximidade
