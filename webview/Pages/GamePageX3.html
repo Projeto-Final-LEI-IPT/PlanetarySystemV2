@@ -10,10 +10,49 @@
   <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/three.js/build/ar-threex-location-only.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
 
-  <!-- Link to your CSS file -->
   <link rel="stylesheet" href="../css/styleVH.css" />
+
+  <style>
+    /* Força a câmara a preencher o ecrã cortando os excessos em vez de esticar */
+    #arjs-video {
+      object-fit: cover !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      top: 0 !important;
+      left: 0 !important;
+    }
+
+    /* Estilo do botão de Fechar (X) */
+    #btnClose {
+      position: absolute; 
+      top: 20px; 
+      right: 20px; 
+      z-index: 9999; 
+      width: 45px; 
+      height: 45px; 
+      background-color: rgba(0, 0, 0, 0.6); 
+      color: white; 
+      border: 2px solid white; 
+      border-radius: 50%; 
+      font-weight: bold; 
+      font-size: 20px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer;
+      box-shadow: 0px 4px 6px rgba(0,0,0,0.3);
+    }
+    
+    #btnClose:active {
+      background-color: rgba(255, 0, 0, 0.8);
+    }
+  </style>
 </head>
 <body>
+  
+  <button id="btnClose">✖</button>
+
   <!-- Quiz Modal -->
   <div class="quiz-modal" id="quizModal">
     <div class="quiz-content">
@@ -49,5 +88,16 @@
   <script src="../js/script.js"></script>
   <script src="../js/componentsV2.js"></script>
   <script src="../js/initializerX3.js"></script>
+
+  <script>
+    document.getElementById('btnClose').addEventListener('click', function() {
+      // Verifica se está dentro do telemóvel (React Native)
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage("voltar_para_o_menu");
+      } else {
+        console.log("X clicado! Mensagem de voltar ao menu enviada.");
+      }
+    });
+  </script>
 </body>
 </html>
