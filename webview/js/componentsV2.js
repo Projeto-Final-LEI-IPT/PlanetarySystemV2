@@ -1,158 +1,174 @@
 // ===========================================
 // COMPONENTES A-FRAME (VERSÃO 2)
 // ===========================================
+// Este ficheiro contém componentes melhorados para a experiência em realidade aumentada
 
 // ================================
 // Componente: Movimento Dinâmico
 // ================================
+// Regista um componente A-Frame que permite o movimento orbital dos planetas
+// Os planetas orbitam à volta de um ponto de origem com uma velocidade configurável
 AFRAME.registerComponent('dynamic-movement', {
+  // Esquema de dados para o componente
   schema: {
-    type: { type: 'string' },
-    speed: { type: 'number', default: 0.00001 },
-    originLat: { type: 'number' },
-    originLon: { type: 'number' },
-    distance: { type: 'number' }
+    type: { type: 'string' },              // Tipo de movimento (ex: "spin")
+    speed: { type: 'number', default: 0.00001 },  // Velocidade de rotação
+    originLat: { type: 'number' },          // Latitude do ponto de origem
+    originLon: { type: 'number' },          // Longitude do ponto de origem
+    distance: { type: 'number' }            // Distância em metros da órbita
   },
   
+  // Inicialização do componente
   init() {
-    this.angle = 0;
-    this.currentGPS = { latitude: this.data.originLat, longitude: this.data.originLon };
+    this.angle = 0;  // Ângulo inicial em graus
   },
   
+  // Função chamada a cada fotograma para atualizar a posição
   tick(time, timeDelta) {
     if (this.data.type === "spin") {
-      this.angle += (this.data.speed * 1000000) * (timeDelta / 1000);
+      // Incrementa o ângulo de acordo com a velocidade
+      this.angle += this.data.speed * timeDelta;
+      
+      // Mantém o ângulo entre 0 e 360 graus
       if (this.angle >= 360) this.angle -= 360;
       
+      // Calcula as novas coordenadas da órbita usando as coordenadas GPS
       const newCoords = computeOffset(
         this.data.originLat,
         this.data.originLon,
         this.data.distance,
-        this.angle
+        this.angle * (180 / Math.PI)
       );
       
-      this.currentGPS = { 
-        latitude: newCoords.lat, 
-        longitude: newCoords.lon 
-      };
-      
+      // Atualiza a posição do elemento no mapa
       this.el.setAttribute('gps-new-entity-place', {
-        latitude: this.currentGPS.latitude,
-        longitude: this.currentGPS.longitude
+        latitude: newCoords.lat,
+        longitude: newCoords.lon
       });
     }
   }
 });
 
 // ================================
-// Componente: Verificação de Proximidade
+// Componente: Verificação de Proximidade (Versão Melhorada)
 // ================================
+// Regista um componente A-Frame que verifica a distância entre o utilizador e um planeta
+// Quando o utilizador se aproxima o suficiente, dispara um quiz com perguntas
+// Esta versão é melhorada com marcas de conclusão
 AFRAME.registerComponent('proximity-check', {
+  // Esquema de dados para o componente
   schema: {
-    range: { type: 'number', default: 5 },
-    questions: { type: 'string', default: '[]' },
-    completed: { type: 'boolean', default: false }
+    range: { type: 'number', default: 1 },           // Intervalo em metros para disparar o quiz
+    questions: { type: 'string', default: '[]' },    // Array JSON com as perguntas do quiz
+    triggered: { type: 'boolean', default: false }   // Flag indicando se foi disparado
   },
   
+  // Inicialização do componente
   init() {
+    // Converte as perguntas de string JSON para array
     this.questions = JSON.parse(this.data.questions);
-    this.triggered = false;
-    this.isCompleted = false; // Propriedade interna extra para garantia
+    this.currentQuestionIndex = 0;  // Índice da pergunta atual
+    this.triggeredOnce = false;      // Indica se já foi disparado uma vez
+    this.completed = false;          // Flag para indicar se foi completado
   },
   
+  // Função chamada a cada fotograma para verificar a proximidade
   tick() {
-    const planetName = this.el.getAttribute('name');
-    
-    if (this.data.completed || this.isCompleted) {
-      updateOrbitColor(planetName, "#00ff00", 0.7);
-      return;
-    }
+    // Sai da função se foi completado ou disparado
+    if (this.triggeredOnce || this.completed) return;
 
+    // Obtém a câmara GPS do utilizador
     const camera = document.querySelector('[gps-new-camera]');
     const gpsComponent = camera.components['gps-new-camera'];
     if (!gpsComponent || !gpsComponent._currentPosition) return;
 
+    // Obtém as coordenadas GPS do utilizador
     const camCoords = gpsComponent._currentPosition;
-    const dynMovement = this.el.components['dynamic-movement'];
-    let entityCoords = dynMovement ? dynMovement.currentGPS : this.el.getAttribute('gps-new-entity-place');
+    
+    // Obtém as coordenadas GPS do planeta
+    const entityCoords = this.el.getAttribute('gps-new-entity-place');
+    if (!entityCoords) return;
 
-    if (!entityCoords || entityCoords.latitude === undefined) return;
-
+    // Calcula a distância entre o utilizador e o planeta
     const dist = getDistanceFromLatLonInM(
-      camCoords.latitude, camCoords.longitude,
-      entityCoords.latitude, entityCoords.longitude
+      camCoords.latitude,
+      camCoords.longitude,
+      entityCoords.latitude,
+      entityCoords.longitude
     );
 
-    if (isNaN(dist)) return;
-
-    // ==========================================
-    // NOVA LÓGICA DE CORES DAS ÓRBITAS
-    // ==========================================
-    const distanciaAviso = 15; // Reduzimos de 50m para 15m! Só reage quando estás mesmo a chegar.
-
+    // Se o utilizador está dentro do intervalo de proximidade, mostra o quiz
     if (dist <= this.data.range) {
-      // O jogador está a interagir com o planeta (< 5m) -> AMARELO FORTE
-      updateOrbitColor(planetName, "#ffaa00", 0.8);
-      if (!this.triggered) {
-        this.triggered = true;
-        this.showQuestion();
-      }
-    } else if (dist <= distanciaAviso) {
-      // O jogador está a aproximar-se (entre 5m e 15m) -> AMARELO
-      updateOrbitColor(planetName, "#ffff00", 0.6); 
-    } else {
-      // O jogador está longe do planeta (> 15m) -> BRANCO (Padrão)
-      updateOrbitColor(planetName, "#ffffff", 0.3);
+      this.triggeredOnce = true;  // Marca para não disparar novamente
+      this.showQuestion();         // Mostra a pergunta
     }
   },
   
+  // Mostra a pergunta do quiz ao utilizador
   showQuestion() {
+    // Seleciona uma pergunta aleatória do array de perguntas
     const randomIndex = Math.floor(Math.random() * this.questions.length);
     const questionData = this.questions[randomIndex];
     if (!questionData) return;
 
+    // Obtém os elementos da interface do modal de quiz
     const modal = document.getElementById('quizModal');
     const planetTitle = document.getElementById('quizPlanetName');
     const qText = document.getElementById('quizQuestion');
     const answersContainer = document.getElementById('quizAnswers');
 
+    // Define o título do planeta no modal
     planetTitle.textContent = this.el.getAttribute('name') || 'Planeta';
+    
+    // Define o texto da pergunta
     qText.textContent = questionData.question;
+    
+    // Limpa as respostas anteriores
     answersContainer.innerHTML = '';
 
+    // Mantém referência ao elemento do planeta para uso posterior
     const planetEl = this.el;
-    const planetName = planetEl.getAttribute('name');
 
+    // Cria um botão para cada resposta possível
     questionData.answers.forEach((answer, i) => {
       const btn = document.createElement('button');
       btn.className = 'quiz-answer';
       btn.textContent = answer;
 
+      // Adiciona um listener para quando o utilizador clica numa resposta
       btn.addEventListener('click', () => {
+        // Evita cliques múltiplos no mesmo botão
         if (btn.classList.contains('clicked')) return;
         btn.classList.add('clicked');
         btn.disabled = true;
 
+        // Verifica se é a resposta correta
         if (i === questionData.rightAnswer) {
+          // Resposta correta: adiciona pontos e marca como verde
           btn.classList.add('correct');
-          score += pontos;
-          pontos = 4;
-          updateScoreDisplay();
+          score += pontos;     // Adiciona os pontos à pontuação total
+          pontos = 4;           // Redefine os pontos para a próxima pergunta
+          updateScoreDisplay(); // Atualiza o display da pontuação
 
-          // Marcamos como completo em todos os sítios possíveis
-          this.isCompleted = true;
-          planetEl.setAttribute('proximity-check', 'completed', true);
+          // Mostra uma marca indicando que o planeta foi conquistado
+          showCompletionMark(planetEl);
           
-          showCompletionMark(planetEl, planetName);
+          // Marca como completado
+          this.completed = true;
+          
+          // Fecha o modal após 1 segundo
           setTimeout(() => modal.classList.remove('show'), 1000);
         } else {
+          // Resposta incorreta: subtrai pontos e marca como vermelho
           btn.classList.add('incorrect');
-          pontos = Math.max(1, pontos - 1);
+          pontos -= 1;          // Subtrai um ponto pela resposta incorreta
+          updateScoreDisplay(); // Atualiza o display da pontuação
         }
       });
       answersContainer.appendChild(btn);
     });
 
+    // Mostra o modal de quiz
     modal.classList.add('show');
   }
 });
@@ -160,47 +176,52 @@ AFRAME.registerComponent('proximity-check', {
 // ================================
 // Componente: Rastreador de Distância
 // ================================
+// Regista um componente A-Frame que calcula e apresenta a distância até ao planeta mais próximo
 AFRAME.registerComponent('planet-distance-tracker', {
+  // Função chamada a cada fotograma para atualizar a distância
   tick() {
+    // Obtém a câmara GPS do utilizador
     const camera = document.querySelector('[gps-new-camera]');
     const gpsComponent = camera.components['gps-new-camera'];
     if (!gpsComponent || !gpsComponent._currentPosition) return;
 
+    // Obtém as coordenadas GPS do utilizador
     const camCoords = gpsComponent._currentPosition;
     
-    // Obter todos os planetas com quiz
-    const planets = Array.from(document.querySelectorAll('[proximity-check]'));
+    // Obtém todos os planetas da cena
+    const planets = document.querySelectorAll('[gps-new-entity-place]');
 
-    // Ordenar planetas por distância original (do JSON) para garantir a ordem Sol -> Mercúrio...
-    let targetPlanet = null;
-    for (let planet of planets) {
-      const prox = planet.components['proximity-check'];
-      if (prox && !prox.isCompleted && !prox.data.completed) {
-        targetPlanet = planet;
-        break;
-      }
-    }
+    // Variáveis para rastrear o planeta mais próximo
+    let closest = null, minDistance = Infinity;
 
-    const display = document.getElementById('distanceDisplay');
-
-    if (targetPlanet) {
-      const dynMovement = targetPlanet.components['dynamic-movement'];
-      let entityCoords = dynMovement ? dynMovement.currentGPS : targetPlanet.getAttribute('gps-new-entity-place');
+    // Percorre todos os planetas para encontrar o mais próximo
+    planets.forEach((planet) => {
+      const entityCoords = planet.getAttribute('gps-new-entity-place');
+      if (!entityCoords) return;
       
-      if (entityCoords && entityCoords.latitude !== undefined) {
-        const dist = getDistanceFromLatLonInM(
-          camCoords.latitude, camCoords.longitude,
-          entityCoords.latitude, entityCoords.longitude
-        );
-        
-        if (!isNaN(dist)) {
-          display.textContent = `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
-        }
-        display.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+      // Calcula a distância até este planeta
+      const dist = getDistanceFromLatLonInM(
+        camCoords.latitude, camCoords.longitude,
+        entityCoords.latitude, entityCoords.longitude
+      );
+      
+      // Atualiza o planeta mais próximo se encontrar um mais perto
+      if (dist < minDistance) {
+        minDistance = dist;
+        closest = planet;
       }
-    } else {
-      display.textContent = "Sistema Solar Conquistado! Parabéns!";
-      display.style.backgroundColor = "rgba(0, 255, 0, 0.7)";
+    });
+
+    // Obtém o elemento para apresentar a distância
+    const display = document.getElementById('distanceDisplay');
+    
+    // Atualiza o texto apresentado
+    if (closest && minDistance < 1000) {
+      // Se há um planeta próximo (menos de 1km), mostra a distância em metros
+      display.textContent = `${Math.round(minDistance)} metros até ${closest.getAttribute('name') || 'um planeta'}`;
+    } else if (closest) {
+      // Se há um planeta mas está longe, mostra uma mensagem genérica
+      display.textContent = `Aproximando-se de ${closest.getAttribute('name') || 'um planeta'}`;
     }
   }
 });
@@ -208,37 +229,27 @@ AFRAME.registerComponent('planet-distance-tracker', {
 // ================================
 // Componente: Mostrar Painel de Informações
 // ================================
+// Regista um componente A-Frame que mostra informações sobre um planeta quando clicado
 AFRAME.registerComponent('show-plane', {
+  // Esquema de dados para o componente
   schema: {
-    name: { type: 'string' },
-    desc: { type: 'string' },
-    image: { type: 'string' }
+    name: { type: 'string' },      // Nome do planeta
+    desc: { type: 'string' },      // Descrição do planeta
+    image: { type: 'string' }      // URL da imagem do planeta
   },
+  
+  // Inicialização do componente
   init() {
+    // Adiciona um listener de clique ao elemento
     this.el.addEventListener('click', () => {
-      const camera = document.querySelector('[gps-new-camera]');
-      const gpsComponent = camera.components['gps-new-camera'];
-      const proxCheck = this.el.components['proximity-check'];
-      
-      if (gpsComponent && gpsComponent._currentPosition && proxCheck && !proxCheck.isCompleted && !proxCheck.data.completed) {
-        const camCoords = gpsComponent._currentPosition;
-        const dynMovement = this.el.components['dynamic-movement'];
-        let entityCoords = dynMovement ? dynMovement.currentGPS : this.el.getAttribute('gps-new-entity-place');
-
-        const dist = getDistanceFromLatLonInM(
-          camCoords.latitude, camCoords.longitude,
-          entityCoords.latitude, entityCoords.longitude
-        );
-
-        if (dist <= 10) {
-          proxCheck.showQuestion();
-          return;
-        }
-      }
-
+      // Obtém o painel de informações
       const panel = document.getElementById('info-panel');
       const text = document.getElementById('info-text');
+      
+      // Constrói o conteúdo HTML com a informação do planeta
       text.innerHTML = `<strong>${this.data.name}</strong><br>${this.data.desc || "Sem descrição disponível."}`;
+      
+      // Mostra o painel de informações
       panel.style.display = 'block';
     });
   }

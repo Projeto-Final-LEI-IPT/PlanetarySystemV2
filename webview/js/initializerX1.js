@@ -1,3 +1,20 @@
+<<<<<<< HEAD
+async function initPlanets() {
+  try {
+    const response = await fetch('../data/SystemDataX1.json');
+    const data = await response.json();
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          createPlanets(position.coords.latitude, position.coords.longitude, data);
+        },
+        (error) => console.error("Erro ao obter localização:", error),
+        { enableHighAccuracy: true }
+      );
+    }
+  } catch (error) {
+=======
 // ===========================================
 // INICIALIZADOR DO SISTEMA PLANETÁRIO - VERSÃO X1
 // ===========================================
@@ -14,19 +31,13 @@ async function initPlanets() {
     const response = await fetch('../data/SystemDataX1.json');
     const data = await response.json();
 
-    // Reduzimos as distâncias em 90% para deixar os planetas muito próximos
-    data.planets.forEach(p => {
-      p.distanciafoco1 *= 0.1;
-    });
-
     // Verifica se o navegador suporta Geolocalização
     if (navigator.geolocation) {
       // Obtém a posição GPS do utilizador com alta precisão
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Deslocamos a origem 5 metros para Norte para o utilizador ver o Sol à frente
-          const startPos = computeOffset(position.coords.latitude, position.coords.longitude, 5, 0);
-          createPlanets(startPos.lat, startPos.lon, data);
+          // Sucesso: Utiliza as coordenadas obtidas para criar os planetas
+          createPlanets(position.coords.latitude, position.coords.longitude, data);
         },
         (error) => {
           // Erro: Regista o erro na consola
@@ -37,10 +48,15 @@ async function initPlanets() {
     }
   } catch (error) {
     // Trata erros ao carregar o ficheiro JSON
+>>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
     console.error("Erro ao carregar system2.json:", error);
   }
 }
 
+<<<<<<< HEAD
+document.addEventListener("DOMContentLoaded", () => {
+  initPlanets();
+=======
 // ================================
 // Inicialização da Página
 // ================================
@@ -50,5 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initPlanets();
   
   // Atualiza o display de pontuação na interface
+>>>>>>> 130c560d65fbab67b3406a96b0b4f21ea3f0636d
   updateScoreDisplay();
 });

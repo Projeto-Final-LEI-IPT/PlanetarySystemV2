@@ -10,6 +10,10 @@ let pontos = 4;
 // Multiplicador de distância para afastar os planetas entre si
 const DISTANCE_MULTIPLIER = 2.0;
 
+// Mapa para rastrear as órbitas por nome do planeta
+// Chave: nome do planeta, Valor: elemento do anel (a-ring)
+let orbitMap = {};
+
 // ===========================================
 // FUNÇÕES PRINCIPAIS
 // ===========================================
@@ -22,7 +26,8 @@ const DISTANCE_MULTIPLIER = 2.0;
 //   - userLat: Latitude do utilizador
 //   - userLon: Longitude do utilizador
 //   - orbitDistance: Distância da órbita em metros
-function createOrbitRing(userLat, userLon, orbitDistance) {
+//   - planetName: Nome do planeta (para rastrear e mudar cor)
+function createOrbitRing(userLat, userLon, orbitDistance, planetName) {
   // Cria um elemento 'a-ring' (anel) do A-Frame
   const ring = document.createElement("a-ring");
   
@@ -46,6 +51,11 @@ function createOrbitRing(userLat, userLon, orbitDistance) {
   
   // Adiciona o anel à cena
   document.querySelector("a-scene").appendChild(ring);
+  
+  // Guarda a referência do anel no mapa para poder mudar a cor depois
+  if (planetName) {
+    orbitMap[planetName] = ring;
+  }
 }
 
 // ================================
@@ -99,19 +109,24 @@ function createPlanets(userLat, userLon, data) {
       image: planet.image 
     });
 
-    // Se o planeta tem velocidade, adiciona movimento orbital
-    if (planet.speed > 0) {
-      // Adiciona o componente de movimento dinâmico
-      sphere.setAttribute("dynamic-movement", {
-        type: "spin", 
-        speed: planet.speed,
-        originLat: userLat, 
-        originLon: userLon, 
-        distance: orbitDistance
-      });
+    // Se o planeta tem velocidade ou é o Sol, adiciona um anel (órbita)
+    if (planet.speed > 0 || planet.name === "Sol") {
+      // Para o Sol, criamos um anel pequeno à volta dele (raio ligeiramente maior que o tamanho)
+      const orbitDistRing = planet.name === "Sol" ? planet.size + 2 : orbitDistance;
       
-      // Cria o anel visual da órbita
-      createOrbitRing(userLat, userLon, orbitDistance);
+      // Adiciona o componente de movimento dinâmico se tiver velocidade
+      if (planet.speed > 0) {
+        sphere.setAttribute("dynamic-movement", {
+          type: "spin", 
+          speed: planet.speed,
+          originLat: userLat, 
+          originLon: userLon, 
+          distance: orbitDistance
+        });
+      }
+      
+      // Cria o anel visual (órbita) para todos os planetas e para o Sol
+      createOrbitRing(userLat, userLon, orbitDistRing, planet.name);
     }
 
     // Se o planeta tem perguntas associadas, adiciona o componente de proximidade
@@ -135,7 +150,8 @@ function createPlanets(userLat, userLon, data) {
 // Mostra uma marca visual (plano verde) indicando que o utilizador respondeu corretamente
 // Parâmetros:
 //   - planetEl: Elemento do planeta ao qual adicionar a marca
-function showCompletionMark(planetEl){
+// - planetName: Nome do planeta para mudar a cor da órbita
+function showCompletionMark(planetEl, planetName){
   // Cria um plano que servirá como marca visível
   const mark = document.createElement("a-plane");
 
@@ -158,4 +174,33 @@ function showCompletionMark(planetEl){
   
   // Adiciona a marca ao elemento do planeta
   planetEl.appendChild(mark);
+  
+  // Muda a cor da órbita para verde
+  if (planetName && orbitMap[planetName]) {
+    orbitMap[planetName].setAttribute("material", {
+      color: "#00ff00",  // Verde
+      shader: "flat",
+      opacity: 0.5,
+      side: "double"
+    });
+  }
+}
+
+// ================================
+// Função: Mudar Cor da Órbita
+// ================================
+// Muda a cor da órbita para amarelo quando o utilizador está próximo
+// Parâmetros:
+//   - planetName: Nome do planeta
+//   - color: Cor em hex (ex: "#ffff00" para amarelo)
+//   - opacity: Opacidade (0-1)
+function updateOrbitColor(planetName, color, opacity) {
+  if (planetName && orbitMap[planetName]) {
+    orbitMap[planetName].setAttribute("material", {
+      color: color,
+      shader: "flat",
+      opacity: opacity,
+      side: "double"
+    });
+  }
 }

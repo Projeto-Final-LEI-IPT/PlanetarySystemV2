@@ -15,8 +15,7 @@ AFRAME.registerComponent('dynamic-movement', {
   
   // Inicialização do componente
   init() {
-    //this.angle = 0;  // Ângulo inicial em graus
-    this.angle = Math.random() * 360;
+    this.angle = 0;  // Ângulo inicial em graus
   },
   
   // Função chamada a cada fotograma para atualizar a posição
@@ -68,6 +67,9 @@ AFRAME.registerComponent('proximity-check', {
   
   // Função chamada a cada fotograma para verificar a proximidade
   tick() {
+    // Sai da função se já foi disparado ou se não há mais perguntas
+    if (this.triggeredOnce || this.currentQuestionIndex >= this.questions.length) return;
+
     // Obtém a câmara GPS do utilizador
     const camera = document.querySelector('[gps-new-camera]');
     const gpsComponent = camera.components['gps-new-camera'];
@@ -87,20 +89,6 @@ AFRAME.registerComponent('proximity-check', {
       entityCoords.latitude,
       entityCoords.longitude
     );
-
-    // Obtém o nome do planeta
-    const planetName = this.el.getAttribute('name');
-    
-    // Se o utilizador está próximo da órbita, muda a cor para amarela
-    if (dist <= 50 && dist > this.data.range) {  // 50 metros é um bom raio
-      updateOrbitColor(planetName, "#ffff00", 0.6);  // Amarelo
-    } else if (dist > 50) {
-      // Se se afastou, volta à cor original (branca)
-      updateOrbitColor(planetName, "#ffffff", 0.3);  // Branco
-    }
-
-    // Sai da função se já foi disparado ou se não há mais perguntas
-    if (this.triggeredOnce || this.currentQuestionIndex >= this.questions.length) return;
 
     // Se o utilizador está dentro do intervalo de proximidade, mostra o quiz
     if (dist <= this.data.range) {
@@ -122,17 +110,13 @@ AFRAME.registerComponent('proximity-check', {
     const answersContainer = document.getElementById('quizAnswers');
 
     // Define o título do planeta no modal
-    const planetName = this.el.getAttribute('name') || 'Planeta';
-    planetTitle.textContent = planetName;
+    planetTitle.textContent = this.el.getAttribute('name') || 'Planeta';
     
     // Define o texto da pergunta
     qText.textContent = questionData.question;
     
     // Limpa as respostas anteriores
     answersContainer.innerHTML = '';
-
-    // Mantém referência ao elemento do planeta para uso posterior
-    const planetEl = this.el;
 
     // Cria um botão para cada resposta possível
     questionData.answers.forEach((answer, i) => {
@@ -154,10 +138,6 @@ AFRAME.registerComponent('proximity-check', {
           score += pontos;     // Adiciona os pontos à pontuação total
           pontos = 4;           // Redefine os pontos para a próxima pergunta
           updateScoreDisplay(); // Atualiza o display da pontuação
-          
-          // Mostra a marca de conclusão e muda a cor da órbita para verde
-          showCompletionMark(planetEl, planetName);
-          
           this.currentQuestionIndex++;
           this.triggeredOnce = this.currentQuestionIndex >= this.questions.length;
           // Fecha o modal após 1 segundo
