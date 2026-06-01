@@ -216,13 +216,14 @@ AFRAME.registerComponent('planet-distance-tracker', {
     const display = document.getElementById('distanceDisplay');
     
     // Atualiza o texto apresentado
-    if (closest && minDistance < 1000) {
+    //if (closest && minDistance < 1000) {
       // Se há um planeta próximo (menos de 1km), mostra a distância em metros
-      display.textContent = `${Math.round(minDistance)} metros até ${closest.getAttribute('name') || 'um planeta'}`;
-    } else if (closest) {
+    //  display.textContent = `${Math.round(minDistance)} metros até ${closest.getAttribute('name') || 'um planeta'}`;
+    //} else if (closest) {
       // Se há um planeta mas está longe, mostra uma mensagem genérica
-      display.textContent = `Aproximando-se de ${closest.getAttribute('name') || 'um planeta'}`;
-    }
+    //  display.textContent = `Aproximando-se de ${closest.getAttribute('name') || 'um planeta'}`;
+    //}
+    display.textContent = JSON.stringify(camCoords);
   }
 });
 
