@@ -203,10 +203,10 @@ AFRAME.registerComponent('planet-distance-tracker', {
       //display.textContent = "Sistema Solar Conquistado! Parabéns!";
       display.style.backgroundColor = "rgba(0, 255, 0, 0.7)";
     }
-    if (teste !== undefined) {
-      teste++;
-    } else
+    if (typeof teste === 'undefined') {
       teste = 0;
+    } else
+      teste++;
     display.textContent = teste+" "+JSON.stringify(camCoords);
 
   }
