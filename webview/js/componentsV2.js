@@ -195,7 +195,7 @@ AFRAME.registerComponent('planet-distance-tracker', {
         );
         
         if (!isNaN(dist)) {
-        display.textContent = `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
+        display.textContent = `${dist} metros até ${targetPlanet.getAttribute('name')}`;
         }
         display.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
       }
