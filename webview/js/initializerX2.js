@@ -1,4 +1,4 @@
-// ===========================================
+watchPosition// ===========================================
 // INICIALIZADOR DO SISTEMA PLANETÁRIO - VERSÃO X2
 // ===========================================
 // Este ficheiro inicializa a aplicação de Realidade Aumentada para a versão X2 do sistema

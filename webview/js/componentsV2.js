@@ -204,10 +204,10 @@ AFRAME.registerComponent('planet-distance-tracker', {
       display.style.backgroundColor = "rgba(0, 255, 0, 0.7)";
     }
     if (typeof teste === 'undefined') {
-      teste = 0;
+      teste = false;
     } else
-      teste++;
-    display.textContent = teste+" "+JSON.stringify(camCoords) + " " + display.textContent;
+      teste = !teste;
+    display.textContent = teste?"|":"-"+" "+JSON.stringify(camCoords) + " " + display.textContent;
 
   }
 });
