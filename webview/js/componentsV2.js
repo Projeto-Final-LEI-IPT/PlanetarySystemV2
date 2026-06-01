@@ -207,10 +207,13 @@ AFRAME.registerComponent('planet-distance-tracker', {
       teste = 0;
     } else
       teste++;
+
+    if (typeof aux === 'undefined')
+      aux = 0;
+
     if (teste % 100==0)
       aux++;
-    else
-      aux = 0
+
     display.textContent = aux+" "+JSON.stringify(camCoords) + " " + display.textContent;
 
   }
