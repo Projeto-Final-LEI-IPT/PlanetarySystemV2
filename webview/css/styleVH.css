@@ -110,7 +110,7 @@ canvas {
   text-align: center;
 }
 #distanceDisplay {
-  bottom: 2vh;
+  bottom: 4vh;
   left: 50%;
   transform: translateX(-50%);
 }

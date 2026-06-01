@@ -17,7 +17,7 @@ async function initPlanets() {
     // Verifica se o navegador suporta Geolocalização
     if (navigator.geolocation) {
       // Obtém a posição GPS do utilizador com alta precisão
-      navigator.geolocation.watchPosition(
+      navigator.geolocation.getCurrentPosition(
         (position) => {
           // Sucesso: Utiliza as coordenadas obtidas para criar os planetas
           createPlanets(position.coords.latitude, position.coords.longitude, data);

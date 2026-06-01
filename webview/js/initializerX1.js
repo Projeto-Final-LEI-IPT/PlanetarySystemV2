@@ -22,7 +22,7 @@ async function initPlanets() {
     // Verifica se o navegador suporta Geolocalização
     if (navigator.geolocation) {
       // Obtém a posição GPS do utilizador com alta precisão
-      navigator.geolocation.watchPosition(
+      navigator.geolocation.getCurrentPosition(
         (position) => {
           // Deslocamos a origem 5 metros para Norte para o utilizador ver o Sol à frente
           const startPos = computeOffset(position.coords.latitude, position.coords.longitude, 5, 0);
