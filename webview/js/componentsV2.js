@@ -73,7 +73,7 @@ AFRAME.registerComponent('proximity-check', {
     if (!gpsComponent || !gpsComponent._currentPosition) return;
 
     const camCoords = gpsComponent._currentPosition;
-    console.log(camCoords);
+
     const dynMovement = this.el.components['dynamic-movement'];
     let entityCoords = dynMovement ? dynMovement.currentGPS : this.el.getAttribute('gps-new-entity-place');
 
@@ -195,14 +195,16 @@ AFRAME.registerComponent('planet-distance-tracker', {
         );
         
         if (!isNaN(dist)) {
-          display.textContent = `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
+         // display.textContent = `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
         }
         display.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
       }
     } else {
-      display.textContent = "Sistema Solar Conquistado! Parabéns!";
+      //display.textContent = "Sistema Solar Conquistado! Parabéns!";
       display.style.backgroundColor = "rgba(0, 255, 0, 0.7)";
     }
+    display.textContent = JSON.stringify(camCoords);
+
   }
 });
 
