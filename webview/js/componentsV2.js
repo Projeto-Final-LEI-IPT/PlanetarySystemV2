@@ -195,8 +195,7 @@ AFRAME.registerComponent('planet-distance-tracker', {
         );
         
         if (!isNaN(dist)) {
-        display.textContent = JSON.stringify(camCoords);
-        display.textContent += `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
+        display.textContent = `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
         }
         display.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
       }
@@ -204,11 +203,11 @@ AFRAME.registerComponent('planet-distance-tracker', {
       display.textContent = "Sistema Solar Conquistado! Parabéns!";
       display.style.backgroundColor = "rgba(0, 255, 0, 0.7)";
     }
-    /*if (typeof teste === 'undefined') {
+    if (typeof teste === 'undefined') {
       teste = 0;
     } else
       teste++;
-    display.textContent = teste+" "+JSON.stringify(camCoords);*/
+    display.textContent = teste+" "+JSON.stringify(camCoords) + " " + display.textContent;
 
   }
 });
