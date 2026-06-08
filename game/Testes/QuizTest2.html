@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AR.js A-Frame Solar Quiz</title>
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/three.js/build/ar-threex-location-only.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
+
+  <script>
+    function computeOffset(lat, lon, distance, angle) {
+      const earthRadius = 6378137;
+      const deltaLat = (distance * Math.cos(angle * Math.PI / 180)) / earthRadius * (180 / Math.PI);
+      const deltaLon = (distance * Math.sin(angle * Math.PI / 180)) / (earthRadius * Math.cos(lat * Math.PI / 180)) * (180 / Math.PI);
+      return { lat: lat + deltaLat, lon: lon + deltaLon };
+    }
+
+    function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    AFRAME.registerComponent('dynamic-movement', {
+      schema: {
+        type: { type: 'string' },
+        speed: { type: 'number', default: 0.00001 },
+        originLat: { type: 'number' },
+        originLon: { type: 'number' },
+        distance: { type: 'number' }
+      },
+      init() {
+        this.angle = 0;
+      },
+      tick(time, timeDelta) {
+        if (this.data.type === "spin") {
+          this.angle += this.data.speed * timeDelta;
+          const newCoords = computeOffset(this.data.originLat, this.data.originLon, this.data.distance, this.angle * (180 / Math.PI));
+          this.el.setAttribute('gps-new-entity-place', { latitude: newCoords.lat, longitude: newCoords.lon });
+        }
+      }
+    });
+
+    AFRAME.registerComponent('proximity-check', {
+  schema: {
+    range: { type: 'number', default: 15 },
+    questions: { type: 'string', default: '[]' },
+    triggered: { type: 'boolean', default: false }
+  },
+  init() {
+    this.questions = JSON.parse(this.data.questions);
+    this.currentQuestionIndex = 0;
+    this.triggeredOnce = false;
+  },
+  tick() {
+    if (this.triggeredOnce || this.currentQuestionIndex >= this.questions.length) return;
+
+    const camera = document.querySelector('[gps-new-camera]');
+    const camCoords = camera.components['gps-new-camera'].currentCoords;
+    if (!camCoords || !camCoords.latitude) return;
+
+    const entityCoords = this.el.getAttribute('gps-new-entity-place');
+    if (!entityCoords) return;
+
+    const dist = getDistanceFromLatLonInM(
+      camCoords.latitude,
+      camCoords.longitude,
+      entityCoords.latitude,
+      entityCoords.longitude
+    );
+
+    if (dist <= this.data.range) {
+      this.triggeredOnce = true;
+      this.showQuestion();
+    }
+  },
+  showQuestion() {
+    const questionData = this.questions[this.currentQuestionIndex];
+    if (!questionData) return;
+
+    const modal = document.getElementById('quizModal');
+    const qText = document.getElementById('quizQuestion');
+    const answersContainer = document.getElementById('quizAnswers');
+
+    qText.textContent = questionData.question;
+    answersContainer.innerHTML = '';
+
+    questionData.answers.forEach((answer, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-answer';
+      btn.textContent = answer;
+      btn.addEventListener('click', () => {
+        if (i === questionData.rightAnswer) {
+          btn.classList.add('correct');
+          setTimeout(() => {
+            modal.classList.remove('show');
+            this.currentQuestionIndex++;
+            this.triggeredOnce = false;
+          }, 1000);
+        } else {
+          btn.classList.add('incorrect');
+        }
+      });
+      answersContainer.appendChild(btn);
+    });
+
+    modal.classList.add('show');
+  }
+});
+
+
+    async function initPlanets() {
+      try {
+        const response = await fetch('system2.json');
+        const data = await response.json();
+        console.log("Loaded planet data:", data);
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLat = position.coords.latitude;
+              const userLon = position.coords.longitude;
+              createPlanets(userLat, userLon, data);
+            },
+            (error) => console.error("Error getting location:", error),
+            { enableHighAccuracy: true }
+          );
+        } else {
+          console.error("Geolocation not supported.");
+        }
+      } catch (error) {
+        console.error("Error loading system2.json:", error);
+      }
+    }
+
+    function createPlanets(userLat, userLon, data) {
+      const planetData = data.planets;
+      const scene = document.querySelector("a-scene");
+
+      planetData.forEach((planet, index) => {
+        const coords = computeOffset(userLat, userLon, planet.distanciafoco1, 0);
+
+        const entity = document.createElement("a-entity");
+        entity.setAttribute("cursor", "rayOrigin:mouse");
+
+        const sphere = document.createElement("a-sphere");
+        sphere.setAttribute("name", planet.name);
+        sphere.setAttribute("gps-new-entity-place", { latitude: coords.lat, longitude: coords.lon });
+        sphere.setAttribute("radius", planet.size);
+        sphere.setAttribute("shadow", "");
+        const imgSrc = "data:image/jpg;base64," + planet.texture;
+        sphere.setAttribute("material", { src: imgSrc, shader: "standard" });
+
+        sphere.setAttribute("dynamic-movement", {
+          type: "spin",
+          speed: planet.speed * 0.000001,
+          originLat: userLat,
+          originLon: userLon,
+          distance: planet.distanciafoco1
+        });
+
+        if (planet.questions && planet.questions.length > 0) {
+          console.log("Attaching quiz to", planet.name, planet.questions);
+          sphere.setAttribute("proximity-check", {
+            range: 15,
+            questions: JSON.stringify(planet.questions),
+            triggered: false
+          });
+        }
+
+        entity.appendChild(sphere);
+        scene.appendChild(entity);
+
+        console.log("Planet added:", planet.name);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", initPlanets);
+  </script>
+  <style>
+  .quiz-modal {
+    position: fixed;
+    top: -999px;
+    left: -999px;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+
+  .quiz-modal.show {
+    top: 0;
+    left: 0;
+  }
+
+  .quiz-content {
+    background: white;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .quiz-content h2 {
+    margin-bottom: 20px;
+  }
+
+  .quiz-answer {
+    display: block;
+    padding: 10px;
+    margin: 10px auto;
+    background: #eee;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .quiz-answer:hover {
+    background: #ddd;
+  }
+
+  .quiz-answer.correct {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .quiz-answer.incorrect {
+    background-color: #f44336;
+    color: white;
+  }
+</style>
+
+</head>
+<body>
+  <div class="quiz-modal" id="quizModal">
+  <div class="quiz-content">
+    <h2 id="quizQuestion">Question?</h2>
+    <div id="quizAnswers"></div>
+  </div>
+</div>
+  <a-scene vr-mode-ui="enabled: false" arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false">
+    <a-camera gps-new-camera="gpsMinDistance: 5"></a-camera>
+  </a-scene>
+</body>
+</html>

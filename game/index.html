@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planetary System GO - Menu</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #0B1A2A;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      color: #FFFFFF;
+    }
+
+    .menu-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .center-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .logo {
+      width: 220px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 40px;
+    }
+
+    .button-container {
+      width: 100%;
+    }
+
+    .menu-button {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin: 10px 0;
+      border: 1px solid rgba(79, 195, 247, 0.3);
+      cursor: pointer;
+      transition: background-color 0.2s;
+      text-decoration: none;
+      color: white;
+    }
+
+    .menu-button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-button ion-icon {
+      font-size: 22px;
+      color: #4FC3F7;
+      margin-right: 12px;
+    }
+
+    .menu-button-text {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .sub-menu-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .footer-container {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .footer-text {
+      font-size: 13px;
+      opacity: 0.5;
+    }
+
+    #subMenu {
+      display: none;
+      width: 100%;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .back-btn ion-icon {
+        color: #FFFFFF;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="menu-overlay">
+    <div class="center-container">
+      <img src="PlanetaryImages/logo.png" alt="Logo" class="logo" />
+
+      <!-- Main Menu -->
+      <div id="mainMenu" class="button-container">
+        <div class="menu-button" onclick="startGame(1)">
+          <ion-icon name="flash-outline"></ion-icon>
+          <span class="menu-button-text">Jogo Rápido</span>
+        </div>
+
+        <div class="menu-button" onclick="startOfflineMode()">
+          <ion-icon name="cloud-offline-outline"></ion-icon>
+          <span class="menu-button-text">Jogar Offline</span>
+        </div>
+
+        <a href="Pages/instructions.html" class="menu-button">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span class="menu-button-text">Instruções</span>
+        </a>
+
+        <div class="menu-button" onclick="showDistances()">
+          <ion-icon name="location-outline"></ion-icon>
+          <span class="menu-button-text">Escolher distâncias</span>
+        </div>
+
+        <a href="Pages/about.html" class="menu-button">
+          <ion-icon name="help-circle-outline"></ion-icon>
+          <span class="menu-button-text">Sobre</span>
+        </a>
+      </div>
+
+      <!-- Sub Menu -->
+      <div id="subMenu" class="button-container">
+        <div class="sub-menu-title">Selecione a Escala:</div>
+
+        <div class="menu-button" onclick="startGame(1)">
+          <ion-icon name="resize-outline"></ion-icon>
+          <span class="menu-button-text">Escala 1x (Perto)</span>
+        </div>
+
+        <div class="menu-button" onclick="startGame(2)">
+          <ion-icon name="resize-outline"></ion-icon>
+          <span class="menu-button-text">Escala 2x</span>
+        </div>
+
+        <div class="menu-button" onclick="startGame(3)">
+          <ion-icon name="resize-outline"></ion-icon>
+          <span class="menu-button-text">Escala 3x</span>
+        </div>
+
+        <div class="menu-button" onclick="startGame(5)">
+          <ion-icon name="resize-outline"></ion-icon>
+          <span class="menu-button-text">Escala 5x (Longe)</span>
+        </div>
+
+        <div class="menu-button back-btn" onclick="hideDistances()">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+          <span class="menu-button-text">Voltar</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-container">
+      <div class="footer-text">v1.0.2</div>
+    </div>
+  </div>
+
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+  <script>
+    window.startGame = function(factor) {
+      let page = "Pages/GamePageX1.html";
+      switch (factor) {
+        case 1: page = "Pages/GamePageX1.html"; break;
+        case 2: page = "Pages/GamePageX2.html"; break;
+        case 3: page = "Pages/GamePageX3.html"; break;
+        case 5: page = "Pages/GamePageX5.html"; break;
+      }
+      window.location.href = page;
+    };
+
+    window.startOfflineMode = function() {
+        console.log("Modo Offline iniciado");
+        // Por agora, como no React, vamos apenas iniciar o jogo normal (escala 1x)
+        window.startGame(1);
+    };
+
+    function showDistances() {
+      document.getElementById('mainMenu').style.display = 'none';
+      document.getElementById('subMenu').style.display = 'block';
+    }
+
+    function hideDistances() {
+      document.getElementById('mainMenu').style.display = 'block';
+      document.getElementById('subMenu').style.display = 'none';
+    }
+
+    // INSTALAR O MODO OFFLINE (SERVICE WORKER)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Modo Offline ativado!', reg))
+          .catch(err => console.error('Erro na cache offline', err));
+      });
+    }
+  </script>
+</body>
+</html>

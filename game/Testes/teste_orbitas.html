@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Órbitas e Cores</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #scene-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #controls {
+            width: 350px;
+            background: #2a2a2a;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 2px solid #444;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+
+        h2 {
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #2196F3;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 5px;
+            cursor: pointer;
+        }
+
+        .value-display {
+            min-width: 50px;
+            text-align: right;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button.danger {
+            background: #f44336;
+        }
+
+        button.danger:hover {
+            background: #da190b;
+        }
+
+        button.info {
+            background: #2196F3;
+        }
+
+        button.info:hover {
+            background: #0b7dda;
+        }
+
+        .info-box {
+            background: #333;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4CAF50;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-box.warning {
+            border-left-color: #ff9800;
+        }
+
+        .info-box.error {
+            border-left-color: #f44336;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .status.success {
+            background: #2e7d32;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .status.warning {
+            background: #e65100;
+            border-left: 4px solid #ff9800;
+        }
+
+        .status.info {
+            background: #0d47a1;
+            border-left: 4px solid #2196F3;
+        }
+
+        .test-result {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 3px;
+            font-size: 12px;
+            background: #333;
+        }
+
+        .test-result.pass {
+            background: #1b5e20;
+            color: #4CAF50;
+        }
+
+        .test-result.fail {
+            background: #b71c1c;
+            color: #ff6b6b;
+        }
+
+        #log {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            color: #aaa;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px;
+        }
+
+        .log-entry.error {
+            color: #ff6b6b;
+        }
+
+        .log-entry.success {
+            color: #4CAF50;
+        }
+
+        .log-entry.info {
+            color: #64B5F6;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="scene-container">
+            <a-scene embedded>
+                <!-- Câmara com GPS simulado -->
+                <a-camera id="camera" position="0 1.6 0" gps-new-camera="gpsMinAccuracy: 40" 
+                          rotation-reader wasd-controls="acceleration: 20"></a-camera>
+
+                <!-- Luz ambiente -->
+                <a-light type="ambient" intensity="0.7" color="#ffffff"></a-light>
+                <a-light type="directional" intensity="0.5" color="#ffffff" position="10 10 5"></a-light>
+
+                <!-- Planetas de teste -->
+                <a-entity id="planet-earth" position="0 0 -15">
+                    <a-sphere radius="0.5" color="#4CAF50" segments-height="32" segments-width="32"></a-sphere>
+                    <a-text value="Terra" position="0 1 0" align="center" color="white"></a-text>
+                </a-entity>
+
+                <a-entity id="planet-mars" position="10 0 -10">
+                    <a-sphere radius="0.3" color="#ff6b4a" segments-height="32" segments-width="32"></a-sphere>
+                    <a-text value="Marte" position="0 1 0" align="center" color="white"></a-text>
+                </a-entity>
+
+                <!-- Órbitas de teste -->
+                <a-ring id="orbit-earth" radius-inner="14" radius-outer="16" rotation="-90 0 0" 
+                        material="color: #ffffff; shader: flat; opacity: 0.3; side: double"></a-ring>
+
+                <a-ring id="orbit-mars" radius-inner="9" radius-outer="11" rotation="-90 0 0" 
+                        material="color: #ffffff; shader: flat; opacity: 0.3; side: double"></a-ring>
+
+                <!-- Info panel -->
+                <a-plane id="info-panel" width="4" height="3" position="0 2 -5" 
+                         material="color: #f0f0f0; side: front" visible="false">
+                    <a-text id="info-text" value="Info do Planeta" align="center" color="black" 
+                            width="8" position="0 0 0.1"></a-text>
+                </a-plane>
+
+                <!-- Quiz Modal (plano no ar) -->
+                <a-plane id="quiz-modal" width="6" height="4" position="0 2 -8" 
+                         material="color: #2a2a2a; side: front" visible="false">
+                    <a-text id="quiz-title" value="Quiz - Planeta" align="center" color="white" 
+                            width="10" position="0 1.5 0.1" font-size="32"></a-text>
+                    <a-text id="quiz-question" value="Qual é a pergunta?" align="center" color="white" 
+                            width="10" position="0 0.5 0.1" font-size="24"></a-text>
+                </a-plane>
+            </a-scene>
+        </div>
+
+        <div id="controls">
+            <h1>🧪 Teste de Órbitas</h1>
+
+            <h2>📍 Controlo de Posição</h2>
+            <div class="control-group">
+                <label>Distância à Terra (metros):</label>
+                <div class="slider-container">
+                    <input type="range" id="distanceSlider" min="0" max="100" value="15">
+                    <span class="value-display" id="distanceValue">15m</span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Controlo de proximidade:</strong><br>
+                • 0-5m: Dispara Quiz<br>
+                • 5-50m: Órbita fica Amarela<br>
+                • 50m+: Órbita fica Branca<br>
+                • Conquistado: Órbita fica Verde
+            </div>
+
+            <h2>🎨 Testes de Cor</h2>
+            <button onclick="testColorChange('orbit-earth', '#ffffff', 0.3)">Órbita Branca</button>
+            <button onclick="testColorChange('orbit-earth', '#ffff00', 0.6)">Órbita Amarela</button>
+            <button onclick="testColorChange('orbit-earth', '#00ff00', 0.5)">Órbita Verde</button>
+
+            <h2>🎯 Testes de Funcionalidade</h2>
+            <button class="info" onclick="testProximityCheck()">Testar Proximidade</button>
+            <button class="info" onclick="simulateCapture()">Simular Captura</button>
+            <button class="danger" onclick="resetAllOrbits()">Resetar Tudo</button>
+
+            <h2>📊 Estado Atual</h2>
+            <div id="status" class="status info">
+                Distância: <strong>15m</strong><br>
+                Órbita Terra: <strong>Branca</strong><br>
+                Estado: <strong>Normal</strong>
+            </div>
+
+            <h2>📋 Resultados de Testes</h2>
+            <div id="test-results"></div>
+
+            <h2>📝 Log</h2>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        // Estado global
+        const orbitMap = {
+            'Terra': document.getElementById('orbit-earth'),
+            'Marte': document.getElementById('orbit-mars')
+        };
+
+        let currentDistance = 15;
+        let capturedPlanets = {};
+
+        // Função para adicionar log
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString('pt-PT');
+            entry.textContent = `[${timestamp}] ${message}`;
+            log.insertBefore(entry, log.firstChild);
+            
+            // Manter apenas últimas 20 entradas
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Função para atualizar cor da órbita
+        function updateOrbitColor(planetName, color, opacity) {
+            const orbit = orbitMap[planetName];
+            if (orbit) {
+                orbit.setAttribute('material', {
+                    color: color,
+                    shader: 'flat',
+                    opacity: opacity,
+                    side: 'double'
+                });
+                addLog(`Órbita ${planetName} mudou para ${color}`, 'success');
+            }
+        }
+
+        // Testar mudança de cor
+        function testColorChange(orbitId, color, opacity) {
+            const orbit = document.getElementById(orbitId);
+            if (orbit) {
+                orbit.setAttribute('material', {
+                    color: color,
+                    shader: 'flat',
+                    opacity: opacity,
+                    side: 'double'
+                });
+                addLog(`Teste de cor: ${color} com opacidade ${opacity}`, 'success');
+                updateStatus('Cor da órbita alterada', `${color}`);
+            }
+        }
+
+        // Teste de proximidade
+        function testProximityCheck() {
+            addLog('Iniciando teste de proximidade...', 'info');
+            
+            if (currentDistance <= 5) {
+                addLog('✓ Distância <= 5m: DEVERIA DISPARAR QUIZ', 'success');
+                showQuizModal('Terra');
+            } else if (currentDistance <= 50) {
+                addLog('✓ Distância entre 5-50m: Órbita AMARELA', 'success');
+                updateOrbitColor('Terra', '#ffff00', 0.6);
+            } else {
+                addLog('✓ Distância > 50m: Órbita BRANCA', 'success');
+                updateOrbitColor('Terra', '#ffffff', 0.3);
+            }
+        }
+
+        // Simular captura de planeta
+        function simulateCapture() {
+            addLog('Simulando captura de Terra...', 'info');
+            capturedPlanets['Terra'] = true;
+            updateOrbitColor('Terra', '#00ff00', 0.5);
+            
+            // Mostra marca de conclusão
+            showCompletionMark('Terra');
+            addLog('✓ Planeta Terra capturado!', 'success');
+            updateStatus('Planeta Capturado', 'Terra - Verde');
+        }
+
+        // Mostrar modal de quiz
+        function showQuizModal(planetName) {
+            const modal = document.getElementById('quiz-modal');
+            const title = document.getElementById('quiz-title');
+            const question = document.getElementById('quiz-question');
+            
+            title.setAttribute('value', `Quiz - ${planetName}`);
+            question.setAttribute('value', 'Qual é a distância média da Terra ao Sol?');
+            modal.setAttribute('visible', 'true');
+            
+            addLog(`Quiz aberto para ${planetName}`, 'success');
+            updateStatus('Quiz Em Aberto', planetName);
+        }
+
+        // Mostrar marca de conclusão
+        function showCompletionMark(planetName) {
+            const mark = document.createElement('a-plane');
+            mark.setAttribute('width', '5');
+            mark.setAttribute('height', '3');
+            mark.setAttribute('position', '0 3 -15');
+            mark.setAttribute('material', {
+                color: '#00ff00',
+                opacity: 0.9,
+                side: 'double'
+            });
+            
+            const text = document.createElement('a-text');
+            text.setAttribute('value', '✓ Conquistado!');
+            text.setAttribute('align', 'center');
+            text.setAttribute('color', '#ffffff');
+            text.setAttribute('width', '10');
+            text.setAttribute('position', '0 0 0.1');
+            
+            mark.appendChild(text);
+            document.querySelector('a-scene').appendChild(mark);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                mark.parentNode.removeChild(mark);
+            }, 3000);
+        }
+
+        // Resetar tudo
+        function resetAllOrbits() {
+            addLog('Resetando todos os testes...', 'warning');
+            updateOrbitColor('Terra', '#ffffff', 0.3);
+            updateOrbitColor('Marte', '#ffffff', 0.3);
+            capturedPlanets = {};
+            currentDistance = 15;
+            document.getElementById('distanceSlider').value = 15;
+            document.getElementById('quiz-modal').setAttribute('visible', 'false');
+            updateStatus('Sistema Resetado', 'Todos os testes foram resetados');
+        }
+
+        // Atualizar status
+        function updateStatus(title, detail) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `
+                <strong>${title}</strong><br>
+                ${detail}<br>
+                <span style="font-size: 11px; color: #999;">
+                    Distância: <strong>${currentDistance}m</strong> | 
+                    Planetas Capturados: <strong>${Object.keys(capturedPlanets).length}</strong>
+                </span>
+            `;
+        }
+
+        // Event listener para o slider de distância
+        document.getElementById('distanceSlider').addEventListener('input', function(e) {
+            currentDistance = parseInt(e.target.value);
+            document.getElementById('distanceValue').textContent = `${currentDistance}m`;
+            
+            // Atualizar cor automaticamente baseado na distância
+            if (currentDistance <= 5) {
+                updateOrbitColor('Terra', '#ffff00', 0.8);
+                updateStatus('Proximidade', `ALERTA: ${currentDistance}m - Quiz deveria disparar!`);
+            } else if (currentDistance <= 50) {
+                updateOrbitColor('Terra', '#ffff00', 0.6);
+                updateStatus('Proximidade', `${currentDistance}m - Órbita Amarela`);
+            } else {
+                if (!capturedPlanets['Terra']) {
+                    updateOrbitColor('Terra', '#ffffff', 0.3);
+                }
+                updateStatus('Distância', `${currentDistance}m - Órbita Normal`);
+            }
+            
+            addLog(`Distância ajustada para ${currentDistance}m`, 'info');
+        });
+
+        // Adicionar teste inicial
+        window.addEventListener('load', function() {
+            addLog('🟢 Sistema de testes iniciado', 'success');
+            addLog('Abra a consola (F12) para mais detalhes', 'info');
+            updateStatus('Sistema Iniciado', 'Pronto para testes');
+        });
+
+        // Simular dados GPS
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(
+                function(position) {
+                    addLog(`GPS: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`, 'info');
+                },
+                function(error) {
+                    addLog('GPS não disponível (modo de teste)', 'warning');
+                }
+            );
+        }
+    </script>
+</body>
+</html>

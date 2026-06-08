@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre - Planetary System GO</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0B1A2A;
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      padding: 40px 20px 20px;
+      background-color: #12263A;
+    }
+    .back-button {
+      margin-right: 15px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .logo {
+      width: 200px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 20px;
+    }
+    .app-name {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4FC3F7;
+      margin-bottom: 5px;
+    }
+    .version {
+      font-size: 16px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 30px;
+    }
+    .info-box {
+      background-color: rgba(255,255,255,0.05);
+      padding: 25px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid rgba(79,195,247,0.2);
+    }
+    .description {
+      font-size: 16px;
+      line-height: 24px;
+      margin-bottom: 20px;
+    }
+    .team-title {
+      font-size: 14px;
+      color: #4FC3F7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+    .team {
+      font-size: 18px;
+      font-weight: 500;
+    }
+    footer {
+      padding: 30px;
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="back-button" onclick="window.location.href='../index.html'">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </button>
+    <h1>Sobre</h1>
+  </header>
+
+  <div class="content">
+    <img src="../PlanetaryImages/logo.png" alt="Logo" class="logo">
+    
+    <div class="app-name">Planetary System GO</div>
+    <div class="version">Versão 1.0.2</div>
+
+    <div class="info-box">
+      <p class="description">
+        Aplicação desenvolvida para explorar o sistema solar através de Realidade Aumentada Georreferenciada.
+      </p>
+      
+      <div class="team-title">Desenvolvido por:</div>
+      <div class="team">Equipa LEI-IPT</div>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 Planetary System Project
+  </footer>
+
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

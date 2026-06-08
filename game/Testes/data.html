@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR.js A-Frame Solar System</title>
+    <script>
+  async function initPlanets() {
+    try {
+      const response = await fetch('system2.json'); // local file
+      const data = await response.json();
+      console.log("Loaded planet data:", data);
+
+      // You can now use the `data` to build your AR scene, etc.
+    } catch (error) {
+      console.error("Error loading local planet data:", error);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", initPlanets);
+</script>
+  </head>
+  <body>
+
+  </body>
+</html>

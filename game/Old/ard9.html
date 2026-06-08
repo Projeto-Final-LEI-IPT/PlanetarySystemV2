@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AR.js A-Frame Solar System</title>
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/three.js/build/ar-threex-location-only.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
+
+  <script>
+    const planets = [
+      { name: "Sol", color: "yellow", distance: 1, radius: 3, speed: 0 },
+      { name: "Mercúrio", color: "gray", distance: 5, radius: 0.5, speed: 0.0008, initialAngle: 0 },
+      { name: "Vénus", color: "yellow", distance: 8, radius: 1, speed: 0.0006, initialAngle: 45 },
+      { name: "Terra", color: "blue", distance: 12, radius: 1.2, speed: 0.0005, initialAngle: 90 },
+      { name: "Marte", color: "red", distance: 16, radius: 0.8, speed: 0.0004, initialAngle: 135 },
+      { name: "Júpiter", color: "orange", distance: 24, radius: 2, speed: 0.0003, initialAngle: 180 },
+      { name: "Saturno", color: "goldenrod", distance: 30, radius: 1.8, speed: 0.0002, initialAngle: 225 },
+      { name: "Úrano", color: "lightblue", distance: 38, radius: 1.5, speed: 0.00015, initialAngle: 270 },
+      { name: "Neptuno", color: "darkblue", distance: 45, radius: 1.4, speed: 0.0001, initialAngle: 315 }
+    ];
+
+    let planetData = []
+
+   async function initPlanets() {
+   try {
+        const response = await fetch('system2.json');
+        const data = await response.json();
+        planetData = data.planets;
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLat = position.coords.latitude;
+              const userLon = position.coords.longitude;
+              createPlanets(userLat, userLon);
+            },
+            (error) => console.error("Error getting location:", error),
+            { enableHighAccuracy: true }
+          );
+        } else {
+          console.error("Geolocation not supported.");
+        }
+      } catch (error) {
+        console.error("Error loading system2.json:", error);
+      }
+    }
+
+    function computeOffset(lat, lon, distance, angle) {
+      const R = 6378137;
+      const dLat = (distance * Math.cos(angle * Math.PI / 180)) / R * (180 / Math.PI);
+      const dLon = (distance * Math.sin(angle * Math.PI / 180)) / (R * Math.cos(lat * Math.PI / 180)) * (180 / Math.PI);
+      return { lat: lat + dLat, lon: lon + dLon };
+    }
+
+    function createPlanets(userLat, userLon) {
+      const scene = document.querySelector("a-scene");
+
+      planets.forEach((planet) => {
+        const coords = computeOffset(userLat, userLon, planet.distance, planet.initialAngle);
+        const entity = document.createElement("a-entity");
+
+        const sphere = document.createElement("a-sphere");
+        sphere.setAttribute("gps-new-entity-place", { latitude: coords.lat, longitude: coords.lon });
+        sphere.setAttribute("radius", planet.radius);
+        sphere.setAttribute("color", planet.color);
+        sphere.setAttribute("shadow", "");
+        sphere.setAttribute("cursor", "rayOrigin:mouse");
+        sphere.setAttribute("show-plane", { name: planet.name });
+
+        if (planet.speed > 0) {
+  sphere.setAttribute("dynamic-movement", {
+    type: "spin",
+    speed: planet.speed,
+    originLat: userLat,
+    originLon: userLon,
+    distance: planet.distance
+  });
+  createOrbitWithCircles(userLat, userLon, planet.distance);
+}
+        entity.appendChild(sphere);
+        scene.appendChild(entity);
+      });
+    }
+
+   function createOrbitWithCircles(userLat, userLon, distance, orbitSegments = null) {
+    const scene = document.querySelector("a-scene");
+
+    // Se orbitSegments não for definido, calcula automaticamente
+    const segments = orbitSegments || Math.round(20 + distance * 20); // Ex: 5 → 27, 45 → 88
+
+    for (let i = 0; i < segments; i++) {
+        const angle = (360 / segments) * i;
+        const { lat, lon } = computeOffset(userLat, userLon, distance, angle);
+
+        const circle = document.createElement("a-circle");
+        circle.setAttribute("gps-new-entity-place", {
+            latitude: lat,
+            longitude: lon
+        });
+        circle.setAttribute("radius", 0.1);
+        circle.setAttribute("rotation", "-90 0 0");
+        circle.setAttribute("color", "white");
+        circle.setAttribute("material", "opacity: 1; transparent: true");
+
+        scene.appendChild(circle);
+    }
+}
+
+    AFRAME.registerComponent('dynamic-movement', {
+      schema: {
+        type: { type: 'string' },
+        speed: { type: 'number' },
+        originLat: { type: 'number' },
+        originLon: { type: 'number' },
+        distance: { type: 'number' }
+      },
+      init() { this.angle = 0; },
+      tick(time, delta) {
+        if (this.data.type === "spin") {
+          this.angle += this.data.speed * delta;
+          const coords = computeOffset(this.data.originLat, this.data.originLon, this.data.distance, this.angle * (180 / Math.PI));
+          this.el.setAttribute("gps-new-entity-place", { latitude: coords.lat, longitude: coords.lon });
+        }
+      }
+    });
+
+   AFRAME.registerComponent('show-plane', {
+  schema: { name: { type: 'string' } },
+  init() {
+    this.el.addEventListener('click', () => {
+      const planet = planetData.find(p => p.name === this.data.name);
+      const desc = planet?.description || "Sem descrição disponível.";
+      const panel = document.getElementById('info-panel');
+      const text = document.getElementById('info-text');
+      text.innerHTML = `<strong>${this.data.name}</strong><br>${desc}`;
+      panel.style.display = 'block';
+    });
+  }
+});
+
+
+    document.addEventListener("DOMContentLoaded", initPlanets);
+  </script>
+</head>
+<body>
+  <!-- CENA AR -->
+  <a-scene vr-mode-ui="enabled: false" arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false">
+    <a-camera gps-new-camera></a-camera>
+  </a-scene>
+
+  <div id="info-panel" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 80%;
+  text-align: center;
+  font-family: sans-serif;
+  z-index: 999;">
+  <span id="info-text"></span><br><br>
+  <button onclick="document.getElementById('info-panel').style.display='none'" style="
+    background: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1em;">Fechar</button>
+</div>
+
+</body>
+</html>
