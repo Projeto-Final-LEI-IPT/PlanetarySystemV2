@@ -1,7 +1,7 @@
 // ===========================================
-// INICIALIZADOR DO SISTEMA PLANETÁRIO - VERSÃO X2
+// INICIALIZADOR DO SISTEMA PLANETÁRIO - VERSÃO X1
 // ===========================================
-// Este ficheiro inicializa a aplicação de Realidade Aumentada para a versão X2 do sistema
+// Este ficheiro inicializa a aplicação de Realidade Aumentada para a versão X1 do sistema
 
 // ================================
 // Função: Inicializar Planetas
@@ -10,14 +10,14 @@
 // e cria os planetas na cena
 async function initPlanets() {
   try {
-    // Carrega o ficheiro JSON com os dados do sistema planetário X2
-    const response = await fetch('../data/SystemDataX2.json');
+    // Carrega o ficheiro JSON com os dados do sistema planetário X1
+    const response = await fetch('../data/SystemDataX1.json');
     const data = await response.json();
 
-    // Reduzimos as distâncias em 90% para deixar os planetas mais próximos e alinhados com a escala base
-    data.planets.forEach(p => {
-      p.distanciafoco1 *= 0.1;
-    });
+    // Reduzimos as distâncias em 90% para deixar os planetas muito próximos
+    //data.planets.forEach(p => {
+    //  p.distanciafoco1 *= 0.1;
+    //});
 
     // Verifica se o navegador suporta Geolocalização
     if (navigator.geolocation) {
