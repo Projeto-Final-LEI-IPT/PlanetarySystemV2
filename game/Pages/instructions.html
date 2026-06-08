@@ -8,8 +8,8 @@
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #0B1A2A;
-      color: #FFFFFF;
+      background-color: #FFFFFF;
+      color: #333;
       display: flex;
       flex-direction: column;
       height: 100vh;
@@ -18,14 +18,15 @@
       display: flex;
       align-items: center;
       padding: 40px 20px 20px;
-      background-color: #12263A;
+      background-color: #FFFFFF;
+      border-bottom: 1px solid #eee;
     }
     .back-button {
       margin-right: 15px;
       cursor: pointer;
       background: none;
       border: none;
-      color: white;
+      color: #12263A;
       font-size: 24px;
       display: flex;
       align-items: center;
@@ -34,41 +35,51 @@
       margin: 0;
       font-size: 22px;
       font-weight: bold;
+      color: #12263A;
     }
     .content {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
     }
+    .main-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 25px;
+      color: #12263A;
+    }
     .section {
-      margin-bottom: 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: rgba(255,255,255,0.05);
-      padding: 20px;
-      border-radius: 15px;
-      border: 1px solid rgba(79,195,247,0.2);
-      text-align: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: rgba(18, 38, 58, 0.05);
+      border-radius: 10px;
     }
-    .section ion-icon {
-      font-size: 40px;
-      color: #4FC3F7;
-      margin-bottom: 10px;
+    .step-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #12263A;
+      margin-bottom: 5px;
     }
-    .section-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: #4FC3F7;
-      margin-bottom: 10px;
-    }
-    .text {
+    .text-content {
       font-size: 16px;
       line-height: 24px;
     }
-    .list {
-      text-align: left;
-      margin-top: 10px;
+    .back-nav-button {
+      background-color: #12263A;
+      padding: 16px;
+      border-radius: 12px;
+      margin-top: 20px;
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: #FFFFFF;
+      font-size: 18px;
+      font-weight: 500;
+      border: none;
+      width: 100%;
     }
   </style>
 </head>
@@ -81,32 +92,39 @@
   </header>
 
   <div class="content">
+    <div class="main-title">Como Jogar</div>
+    
     <div class="section">
-      <ion-icon name="compass-outline"></ion-icon>
-      <div class="section-title">Objetivo</div>
-      <p class="text">
-        Explore o Sistema Solar em Realidade Aumentada! Use o seu GPS para localizar os planetas espalhados ao seu redor.
-      </p>
+      <div class="step-title">1. Permissões</div>
+      <div class="text-content">
+        Certifica-te de que aceitaste as permissões de Câmara e GPS. Elas são fundamentais para localizares os planetas no mundo real.
+      </div>
     </div>
 
     <div class="section">
-      <ion-icon name="scan-outline"></ion-icon>
-      <div class="section-title">Como Jogar</div>
-      <p class="text">
-        1. Escolha uma escala de distância no menu inicial.<br>
-        2. Aponte a câmara do telemóvel para o horizonte.<br>
-        3. Procure os anéis das órbitas e os planetas.<br>
-        4. Aproxime-se de um planeta (fisicamente) para desbloquear o Quiz!
-      </p>
+      <div class="step-title">2. Exploração</div>
+      <div class="text-content">
+        Move o teu telemóvel ao teu redor. O sistema utiliza a tua localização real para projetar o sistema solar através do ecrã.
+      </div>
     </div>
 
     <div class="section">
-      <ion-icon name="information-circle-outline"></ion-icon>
-      <div class="section-title">Interação</div>
-      <p class="text">
-        Clique em qualquer planeta para ler informações detalhadas sobre ele antes de tentar o Quiz.
-      </p>
+      <div class="step-title">3. Interação</div>
+      <div class="text-content">
+        Podes alternar entre o "Jogo Rápido" para uma experiência imediata ou "Escolher Distâncias" para ajustar a escala do sistema planetário.
+      </div>
     </div>
+
+    <div class="section">
+      <div class="step-title">4. Voltar ao Menu</div>
+      <div class="text-content">
+        Se estiveres dentro do simulador e quiseres voltar, procura o botão de saída no ecrã ou usa a navegação do sistema.
+      </div>
+    </div>
+
+    <button class="back-nav-button" onclick="window.location.href='../index.html'">
+      Voltar ao Menu Inicial
+    </button>
   </div>
 
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
