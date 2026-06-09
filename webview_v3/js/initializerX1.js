@@ -34,8 +34,8 @@ async function initPlanets() {
           console.error("Erro ao obter localização:", error);
         },
         {
-          enableHighAccuracy: false, 
-          timeout: 5000,
+          enableHighAccuracy: true, 
+          timeout: 10000,
           maximumAge: 0
         }
       );

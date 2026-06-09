@@ -33,7 +33,7 @@ async function initPlanets() {
           // Erro: Regista o erro na consola
           console.error("Erro ao obter localização:", error);
         },
-        { enableHighAccuracy: true }  // Opções: pedidos de alta precisão
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }  // Opções: pedidos de alta precisão
       );
     }
   } catch (error) {
