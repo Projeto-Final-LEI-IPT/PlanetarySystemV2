@@ -25,7 +25,7 @@ async function initPlanets() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           // Deslocamos a origem 5 metros para Norte para o utilizador ver o Sol à frente
-          const startPos = computeOffset(position.coords.latitude, position.coords.longitude, 5, 0);
+          //const startPos = computeOffset(position.coords.latitude, position.coords.longitude, 5, 0);
           createPlanets(startPos.lat, startPos.lon, data);
         },
         (error) => {

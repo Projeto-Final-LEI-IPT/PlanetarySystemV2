@@ -182,6 +182,8 @@ AFRAME.registerComponent('planet-distance-tracker', {
       }
     }
 
+    console.log(targetPlanet);
+
     const display = document.getElementById('distanceDisplay');
 
     if (targetPlanet) {
