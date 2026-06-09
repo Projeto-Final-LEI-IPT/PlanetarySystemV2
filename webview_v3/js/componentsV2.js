@@ -1,5 +1,5 @@
 // ===========================================
-// COMPONENTES A-FRAME (VERSÃO 3 - HIERARQUIA 3D)
+// COMPONENTES A-FRAME (VERSÃO 3 - HIERARQUIA 3D + SMOOTHING)
 // ===========================================
 
 // ================================
@@ -15,17 +15,14 @@ AFRAME.registerComponent('dynamic-movement', {
   },
   
   tick(time, timeDelta) {
-    // Aumenta o ângulo baseado na velocidade e tempo real
     this.angle += (this.data.speed * 1000000) * (timeDelta / 1000);
     if (this.angle >= 360) this.angle -= 360;
-    
-    // Roda o PIVOT no eixo Y
     this.el.setAttribute('rotation', `0 ${this.angle} 0`);
   }
 });
 
 // ================================
-// Componente: Verificação de Proximidade (3D World Distance)
+// Componente: Verificação de Proximidade (3D World Distance + Smoothing)
 // ================================
 AFRAME.registerComponent('proximity-check', {
   schema: {
@@ -40,6 +37,7 @@ AFRAME.registerComponent('proximity-check', {
     this.isCompleted = false;
     this.worldPos = new THREE.Vector3();
     this.camWorldPos = new THREE.Vector3();
+    this.smoothedDist = null;
   },
   
   tick() {
@@ -50,16 +48,21 @@ AFRAME.registerComponent('proximity-check', {
       return;
     }
 
-    // Obtém a posição absoluta (World Position) do Planeta e da Câmara
     this.el.object3D.getWorldPosition(this.worldPos);
     const cameraEl = this.el.sceneEl.camera.el;
     cameraEl.object3D.getWorldPosition(this.camWorldPos);
 
-    // Calcula a distância direta em metros (3D Spatial Distance)
-    const dist = this.camWorldPos.distanceTo(this.worldPos);
+    const rawDist = this.camWorldPos.distanceTo(this.worldPos);
+    if (isNaN(rawDist)) return;
 
-    if (isNaN(dist)) return;
+    // Filtro Passa-Baixo (Smoothing)
+    if (this.smoothedDist === null) {
+      this.smoothedDist = rawDist;
+    } else {
+      this.smoothedDist = (this.smoothedDist * 0.9) + (rawDist * 0.1);
+    }
 
+    const dist = this.smoothedDist;
     const distanciaAviso = 15;
 
     if (dist <= this.data.range) {
@@ -124,12 +127,14 @@ AFRAME.registerComponent('proximity-check', {
 });
 
 // ================================
-// Componente: Rastreador de Distância (3D World Distance)
+// Componente: Rastreador de Distância (3D World Distance + Smoothing)
 // ================================
 AFRAME.registerComponent('planet-distance-tracker', {
   init() {
     this.worldPos = new THREE.Vector3();
     this.camWorldPos = new THREE.Vector3();
+    this.smoothedDist = null;
+    this.lastTarget = null;
   },
   tick() {
     const planets = Array.from(document.querySelectorAll('[proximity-check]'));
@@ -146,13 +151,23 @@ AFRAME.registerComponent('planet-distance-tracker', {
     const display = document.getElementById('distanceDisplay');
 
     if (targetPlanet) {
+      if (this.lastTarget !== targetPlanet) {
+        this.smoothedDist = null;
+        this.lastTarget = targetPlanet;
+      }
+
       targetPlanet.object3D.getWorldPosition(this.worldPos);
       this.el.object3D.getWorldPosition(this.camWorldPos);
       
-      const dist = this.camWorldPos.distanceTo(this.worldPos);
+      const rawDist = this.camWorldPos.distanceTo(this.worldPos);
       
-      if (!isNaN(dist)) {
-        display.textContent = `${Math.round(dist)} metros até ${targetPlanet.getAttribute('name')}`;
+      if (!isNaN(rawDist)) {
+        if (this.smoothedDist === null) {
+          this.smoothedDist = rawDist;
+        } else {
+          this.smoothedDist = (this.smoothedDist * 0.9) + (rawDist * 0.1);
+        }
+        display.textContent = `${Math.round(this.smoothedDist)} metros até ${targetPlanet.getAttribute('name')}`;
       }
       display.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
     } else {
@@ -183,9 +198,9 @@ AFRAME.registerComponent('show-plane', {
         const cameraEl = this.el.sceneEl.camera.el;
         cameraEl.object3D.getWorldPosition(this.camWorldPos);
 
-        const dist = this.camWorldPos.distanceTo(this.worldPos);
+        const rawDist = this.camWorldPos.distanceTo(this.worldPos);
 
-        if (dist <= 10) {
+        if (rawDist <= 10) {
           proxCheck.showQuestion();
           return;
         }
