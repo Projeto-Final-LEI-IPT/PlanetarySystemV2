@@ -15,7 +15,9 @@ AFRAME.registerComponent('dynamic-movement', {
   },
   
   tick(time, timeDelta) {
-    this.angle += (this.data.speed * 1000000) * (timeDelta / 1000);
+    // Reduzi o multiplicador de 1.000.000 para 200.000 para andar 5x mais devagar
+    const speedMultiplier = 200000; 
+    this.angle += (this.data.speed * speedMultiplier) * (timeDelta / 1000);
     if (this.angle >= 360) this.angle -= 360;
     this.el.setAttribute('rotation', `0 ${this.angle} 0`);
   }
