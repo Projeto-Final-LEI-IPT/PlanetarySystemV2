@@ -27,6 +27,18 @@
     </div>
   </div>
 
+  <div class="victory-modal" id="victoryModal">
+    <div class="victory-content">
+      <span class="victory-icon">🏆</span>
+      <h1 class="victory-title">Parabéns!</h1>
+      <p class="victory-score-label">Pontuação Final:</p>
+      <span class="victory-score-value" id="victoryScore">0</span>
+      <button class="btn-finish" onclick="document.getElementById('btnClose').click()">
+        VOLTAR AO MENU
+      </button>
+    </div>
+  </div>
+
   <div id="info-panel" style="display: none;">
     <span id="info-text"></span><br><br>
     <button onclick="document.getElementById('info-panel').style.display='none'">
@@ -37,6 +49,7 @@
   <div id="distanceDisplay">Procurando planetas...</div>
 
   <div id="scoreDisplay">Pontuação: 0</div>
+  <div id="gpsDebug">GPS: Aguardando...</div>
 
   <a-scene vr-mode-ui="enabled: false" 
          arjs="sourceType: webcam; 
@@ -48,7 +61,7 @@
                displayHeight: 720;"
          cursor="rayOrigin: mouse"
          raycaster="objects: [proximity-check], a-sphere">
-    <a-camera gps-new-camera="gpsMinDistance: 10" planet-distance-tracker rotation-reader></a-camera>
+    <a-camera gps-new-camera="gpsMinDistance: 0" planet-distance-tracker rotation-reader></a-camera>
   </a-scene>
 
   

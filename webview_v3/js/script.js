@@ -111,3 +111,24 @@ function updateOrbitColor(planetName, color, opacity) {
     orbitMap[planetName].setAttribute("material", "opacity", opacity);
   }
 }
+
+function showVictoryModal() {
+  const modal = document.getElementById('victoryModal');
+  const scoreText = document.getElementById('victoryScore');
+  if (modal && scoreText) {
+    scoreText.textContent = score;
+    modal.classList.add('show');
+  }
+}
+
+// ================================
+// Monitor de GPS para Debug
+// ================================
+if (navigator.geolocation) {
+  navigator.geolocation.watchPosition((pos) => {
+    const debugEl = document.getElementById('gpsDebug');
+    if (debugEl) {
+      debugEl.textContent = `GPS: ${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+    }
+  }, (err) => console.warn("Erro GPS Debug:", err), { enableHighAccuracy: true });
+}

@@ -50,11 +50,11 @@ AFRAME.registerComponent('proximity-check', {
 
     if (isNaN(rawDist)) return;
 
-    // SUAVIZAÇÃO AGRESSIVA (0.05 = Filtra 95% do ruído do GPS)
+    // SUAVIZAÇÃO MODERADA (0.2 = Filtra 80% do ruído do GPS, mais reativo)
     if (this.smoothedDist === null) {
       this.smoothedDist = rawDist;
     } else {
-      this.smoothedDist = (this.smoothedDist * 0.95) + (rawDist * 0.05);
+      this.smoothedDist = (this.smoothedDist * 0.8) + (rawDist * 0.2);
     }
 
     const dist = this.smoothedDist;
@@ -133,6 +133,7 @@ AFRAME.registerComponent('planet-distance-tracker', {
     this.camWorldPos = new THREE.Vector3();
     this.smoothedDist = null;
     this.lastTarget = null;
+    this.victoryTriggered = false;
   },
   tick() {
     const planets = Array.from(document.querySelectorAll('[proximity-check]'));
@@ -162,14 +163,20 @@ AFRAME.registerComponent('planet-distance-tracker', {
       
       if (!isNaN(rawDist)) {
         if (this.smoothedDist === null) this.smoothedDist = rawDist;
-        else this.smoothedDist = (this.smoothedDist * 0.95) + (rawDist * 0.05);
+        else this.smoothedDist = (this.smoothedDist * 0.7) + (rawDist * 0.3);
         
         display.textContent = `${Math.round(this.smoothedDist)} metros até ${targetPlanet.getAttribute('name')}`;
       }
       display.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+      display.classList.remove('victory-state');
     } else {
-      display.textContent = "Sistema Solar Conquistado! Parabéns!";
-      display.style.backgroundColor = "rgba(0, 255, 0, 0.7)";
+      if (!this.victoryTriggered) {
+        this.victoryTriggered = true;
+        showVictoryModal();
+      }
+      display.textContent = "Sistema Solar Conquistado!";
+      display.style.backgroundColor = "rgba(0, 255, 0, 0.8)";
+      display.classList.add('victory-state');
     }
   }
 });
