@@ -41,3 +41,14 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+
+// depois em produção isto pode ser apagado
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => caches.delete(cache))
+      );
+    })
+  );
+});
