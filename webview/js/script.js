@@ -28,6 +28,7 @@ let orbitMap = {};
 //   - orbitDistance: Distância da órbita em metros
 //   - planetName: Nome do planeta (para rastrear e mudar cor)
 function createOrbitRing(userLat, userLon, orbitDistance, planetName) {
+  if (planetName === 'Sol') return;
   // Cria um elemento 'a-ring' (anel) do A-Frame
   const ring = document.createElement("a-ring");
   
