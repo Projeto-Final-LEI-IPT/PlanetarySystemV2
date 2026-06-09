@@ -15,9 +15,9 @@ async function initPlanets() {
     const data = await response.json();
 
     // Reduzimos as distâncias em 90% para deixar os planetas mais próximos e alinhados com a escala base
-    data.planets.forEach(p => {
-      p.distanciafoco1 *= 0.1;
-    });
+    //data.planets.forEach(p => {
+    //  p.distanciafoco1 *= 0.1;
+    //});
 
     // Verifica se o navegador suporta Geolocalização
     if (navigator.geolocation) {
