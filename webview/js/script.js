@@ -8,7 +8,7 @@ let score = 0;
 let pontos = 4;
 
 // Multiplicador de distância para afastar os planetas entre si
-const DISTANCE_MULTIPLIER = 2.0;
+const DISTANCE_MULTIPLIER = 1.0;
 
 // Mapa para rastrear as órbitas por nome do planeta
 // Chave: nome do planeta, Valor: elemento do anel (a-ring)
