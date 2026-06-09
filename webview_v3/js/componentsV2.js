@@ -1,19 +1,12 @@
 // ===========================================
-// COMPONENTES A-FRAME (VERSÃO 3 - HIERARQUIA 3D + SMOOTHING)
+// COMPONENTES A-FRAME (VERSÃO 3.1 - ESTABILIZAÇÃO PRO)
 // ===========================================
 
-// ================================
-// Componente: Movimento Dinâmico (Rotação de Pivot)
-// ================================
 AFRAME.registerComponent('dynamic-movement', {
   schema: {
     speed: { type: 'number', default: 0.00001 }
   },
-  
-  init() {
-    this.angle = 0;
-  },
-  
+  init() { this.angle = 0; },
   tick(time, timeDelta) {
     const speedMultiplier = 200000; 
     this.angle += (this.data.speed * speedMultiplier) * (timeDelta / 1000);
@@ -22,9 +15,6 @@ AFRAME.registerComponent('dynamic-movement', {
   }
 });
 
-// ================================
-// Componente: Verificação de Proximidade (3D World Distance + Smoothing)
-// ================================
 AFRAME.registerComponent('proximity-check', {
   schema: {
     range: { type: 'number', default: 5 },
@@ -43,7 +33,6 @@ AFRAME.registerComponent('proximity-check', {
   
   tick() {
     const planetName = this.el.getAttribute('name');
-    
     if (this.data.completed || this.isCompleted) {
       updateOrbitColor(planetName, "#00ff00", 0.7);
       return;
@@ -53,18 +42,24 @@ AFRAME.registerComponent('proximity-check', {
     const cameraEl = this.el.sceneEl.camera.el;
     cameraEl.object3D.getWorldPosition(this.camWorldPos);
 
-    const rawDist = this.camWorldPos.distanceTo(this.worldPos);
+    // CALCULO 2D (Ignora Altitude/Y para evitar saltos verticais)
+    const rawDist = Math.sqrt(
+      Math.pow(this.camWorldPos.x - this.worldPos.x, 2) + 
+      Math.pow(this.camWorldPos.z - this.worldPos.z, 2)
+    );
+
     if (isNaN(rawDist)) return;
 
-    // Filtro Passa-Baixo (Smoothing)
+    // SUAVIZAÇÃO AGRESSIVA (0.05 = Filtra 95% do ruído do GPS)
     if (this.smoothedDist === null) {
       this.smoothedDist = rawDist;
     } else {
-      this.smoothedDist = (this.smoothedDist * 0.9) + (rawDist * 0.1);
+      this.smoothedDist = (this.smoothedDist * 0.95) + (rawDist * 0.05);
     }
 
     const dist = this.smoothedDist;
     const distanciaAviso = 15;
+    const margemSaida = 3; // Histerese: precisa de se afastar +3m para sair do modo trigger
 
     if (dist <= this.data.range) {
       updateOrbitColor(planetName, "#ffaa00", 0.8);
@@ -72,10 +67,15 @@ AFRAME.registerComponent('proximity-check', {
         this.triggered = true;
         this.showQuestion();
       }
-    } else if (dist <= distanciaAviso) {
-      updateOrbitColor(planetName, "#ffff00", 0.6); 
-    } else {
-      updateOrbitColor(planetName, "#ffffff", 0.3);
+    } else if (dist > this.data.range + margemSaida) {
+      // Só "des-triga" se se afastar para lá da margem de segurança
+      this.triggered = false; 
+      
+      if (dist <= distanciaAviso) {
+        updateOrbitColor(planetName, "#ffff00", 0.6); 
+      } else {
+        updateOrbitColor(planetName, "#ffffff", 0.3);
+      }
     }
   },
   
@@ -127,9 +127,6 @@ AFRAME.registerComponent('proximity-check', {
   }
 });
 
-// ================================
-// Componente: Rastreador de Distância (3D World Distance + Smoothing)
-// ================================
 AFRAME.registerComponent('planet-distance-tracker', {
   init() {
     this.worldPos = new THREE.Vector3();
@@ -140,7 +137,6 @@ AFRAME.registerComponent('planet-distance-tracker', {
   tick() {
     const planets = Array.from(document.querySelectorAll('[proximity-check]'));
     let targetPlanet = null;
-    
     for (let planet of planets) {
       const prox = planet.components['proximity-check'];
       if (prox && !prox.isCompleted && !prox.data.completed) {
@@ -150,7 +146,6 @@ AFRAME.registerComponent('planet-distance-tracker', {
     }
 
     const display = document.getElementById('distanceDisplay');
-
     if (targetPlanet) {
       if (this.lastTarget !== targetPlanet) {
         this.smoothedDist = null;
@@ -160,14 +155,15 @@ AFRAME.registerComponent('planet-distance-tracker', {
       targetPlanet.object3D.getWorldPosition(this.worldPos);
       this.el.object3D.getWorldPosition(this.camWorldPos);
       
-      const rawDist = this.camWorldPos.distanceTo(this.worldPos);
+      const rawDist = Math.sqrt(
+        Math.pow(this.camWorldPos.x - this.worldPos.x, 2) + 
+        Math.pow(this.camWorldPos.z - this.worldPos.z, 2)
+      );
       
       if (!isNaN(rawDist)) {
-        if (this.smoothedDist === null) {
-          this.smoothedDist = rawDist;
-        } else {
-          this.smoothedDist = (this.smoothedDist * 0.9) + (rawDist * 0.1);
-        }
+        if (this.smoothedDist === null) this.smoothedDist = rawDist;
+        else this.smoothedDist = (this.smoothedDist * 0.95) + (rawDist * 0.05);
+        
         display.textContent = `${Math.round(this.smoothedDist)} metros até ${targetPlanet.getAttribute('name')}`;
       }
       display.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
@@ -178,35 +174,20 @@ AFRAME.registerComponent('planet-distance-tracker', {
   }
 });
 
-// ================================
-// Componente: Mostrar Painel de Informações
-// ================================
 AFRAME.registerComponent('show-plane', {
-  schema: {
-    name: { type: 'string' },
-    desc: { type: 'string' },
-    image: { type: 'string' }
-  },
+  schema: { name: { type: 'string' }, desc: { type: 'string' }, image: { type: 'string' } },
   init() {
     this.worldPos = new THREE.Vector3();
     this.camWorldPos = new THREE.Vector3();
-
     this.el.addEventListener('click', () => {
       const proxCheck = this.el.components['proximity-check'];
-      
       if (proxCheck && !proxCheck.isCompleted && !proxCheck.data.completed) {
         this.el.object3D.getWorldPosition(this.worldPos);
         const cameraEl = this.el.sceneEl.camera.el;
         cameraEl.object3D.getWorldPosition(this.camWorldPos);
-
-        const rawDist = this.camWorldPos.distanceTo(this.worldPos);
-
-        if (rawDist <= 10) {
-          proxCheck.showQuestion();
-          return;
-        }
+        const dist = Math.sqrt(Math.pow(this.camWorldPos.x - this.worldPos.x, 2) + Math.pow(this.camWorldPos.z - this.worldPos.z, 2));
+        if (dist <= 10) { proxCheck.showQuestion(); return; }
       }
-
       const panel = document.getElementById('info-panel');
       const text = document.getElementById('info-text');
       text.innerHTML = `<strong>${this.data.name}</strong><br>${this.data.desc || "Sem descrição disponível."}`;

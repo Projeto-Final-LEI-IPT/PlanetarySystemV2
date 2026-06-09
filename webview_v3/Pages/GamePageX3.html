@@ -45,9 +45,10 @@
 
   <!-- A-Frame Scene -->
   <a-scene vr-mode-ui="enabled: false" 
-           arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false">
-     <a-camera gps-new-camera="gpsMinDistance: 5; minDistance: 5; positionMinAccuracy: 50" planet-distance-tracker rotation-reader></a-camera>
-  
+           arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false"
+           cursor="rayOrigin: mouse"
+           raycaster="objects: [proximity-check], a-sphere">
+  <a-camera gps-new-camera="gpsMinDistance: 10" planet-distance-tracker rotation-reader></a-camera>
   </a-scene>
 
   
