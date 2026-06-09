@@ -3,7 +3,7 @@
 // ===========================================
 let score = 0;
 let pontos = 4;
-const DISTANCE_MULTIPLIER = 1.0;
+const DISTANCE_MULTIPLIER = 2.0;
 let orbitMap = {};
 
 // ===========================================
