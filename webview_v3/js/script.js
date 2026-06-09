@@ -29,7 +29,7 @@ function createPlanets(userLat, userLon, data) {
 
     // 2. Criar a Órbita (Anel Branco)
     // Agora o anel é um filho direto do contentor central
-    if (planet.speed > 0 || planet.name === "Sol") {
+    if (planet.speed > 0 /*|| planet.name === "Sol"*/) {
       const ring = document.createElement("a-ring");
       const orbitDistRing = planet.name === "Sol" ? planet.size + 2 : orbitDistance;
       
