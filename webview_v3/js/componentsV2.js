@@ -1,5 +1,5 @@
 // ===========================================
-// COMPONENTES A-FRAME (VERSÃO 3.1 - ESTABILIZAÇÃO PRO)
+// COMPONENTES A-FRAME (VERSÃO 3.2 - ESTABILIZAÇÃO TOTAL)
 // ===========================================
 
 AFRAME.registerComponent('dynamic-movement', {
@@ -29,9 +29,13 @@ AFRAME.registerComponent('proximity-check', {
     this.worldPos = new THREE.Vector3();
     this.camWorldPos = new THREE.Vector3();
     this.smoothedDist = null;
+    this.startTime = Date.now(); // Delay inicial para evitar bugs de sobreposição
   },
   
   tick() {
+    // IGNORA OS PRIMEIROS 3 SEGUNDOS PARA ESTABILIZAR GPS
+    if (Date.now() - this.startTime < 3000) return;
+
     const planetName = this.el.getAttribute('name');
     if (this.data.completed || this.isCompleted) {
       updateOrbitColor(planetName, "#00ff00", 0.7);
@@ -42,7 +46,7 @@ AFRAME.registerComponent('proximity-check', {
     const cameraEl = this.el.sceneEl.camera.el;
     cameraEl.object3D.getWorldPosition(this.camWorldPos);
 
-    // CALCULO 2D (Ignora Altitude/Y para evitar saltos verticais)
+    // CALCULO 2D
     const rawDist = Math.sqrt(
       Math.pow(this.camWorldPos.x - this.worldPos.x, 2) + 
       Math.pow(this.camWorldPos.z - this.worldPos.z, 2)
@@ -50,7 +54,7 @@ AFRAME.registerComponent('proximity-check', {
 
     if (isNaN(rawDist)) return;
 
-    // SUAVIZAÇÃO MODERADA (0.2 = Filtra 80% do ruído do GPS, mais reativo)
+    // SUAVIZAÇÃO MODERADA (Mais reativo que o original)
     if (this.smoothedDist === null) {
       this.smoothedDist = rawDist;
     } else {
@@ -59,7 +63,7 @@ AFRAME.registerComponent('proximity-check', {
 
     const dist = this.smoothedDist;
     const distanciaAviso = 15;
-    const margemSaida = 3; // Histerese: precisa de se afastar +3m para sair do modo trigger
+    const margemSaida = 3; 
 
     if (dist <= this.data.range) {
       updateOrbitColor(planetName, "#ffaa00", 0.8);
@@ -68,9 +72,7 @@ AFRAME.registerComponent('proximity-check', {
         this.showQuestion();
       }
     } else if (dist > this.data.range + margemSaida) {
-      // Só "des-triga" se se afastar para lá da margem de segurança
       this.triggered = false; 
-      
       if (dist <= distanciaAviso) {
         updateOrbitColor(planetName, "#ffff00", 0.6); 
       } else {
@@ -137,6 +139,10 @@ AFRAME.registerComponent('planet-distance-tracker', {
   },
   tick() {
     const planets = Array.from(document.querySelectorAll('[proximity-check]'));
+    
+    // EVITA MENSAGEM DE VITÓRIA SE A CENA AINDA ESTIVER A CARREGAR
+    if (planets.length === 0) return;
+
     let targetPlanet = null;
     for (let planet of planets) {
       const prox = planet.components['proximity-check'];
