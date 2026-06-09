@@ -49,5 +49,16 @@
   <script src="../js/script.js"></script>
   <script src="../js/componentsV2.js"></script>
   <script src="../js/initializerX5.js"></script>
+
+  <script>
+    document.getElementById('btnClose').addEventListener('click', function() {
+      // Verifica se está dentro do telemóvel (React Native)
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage("voltar_para_o_menu");
+      } else {
+        window.location.href = "../index.html";
+      }
+    });
+  </script>
 </body>
 </html>

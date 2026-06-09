@@ -3,22 +3,174 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Solar System AR Quiz</title>
+  <title>Planetary System GO - Menu</title>
   <style>
-    /* O ecrã fica todo preto para combinar com a App enquanto o jogo não carrega */
     body, html {
       margin: 0;
       padding: 0;
       height: 100%;
       width: 100%;
-      background: #000000;
+      background: #FFFFFF;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       overflow: hidden;
+      color: #12263A;
+    }
+
+    .menu-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+      background-color: #FFFFFF;
+    }
+
+    .center-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .logo {
+      width: 220px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 40px;
+    }
+
+    .button-container {
+      width: 85%;
+    }
+
+    .menu-button {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      background-color: #12263A;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      text-decoration: none;
+      color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .menu-button:active {
+      opacity: 0.8;
+    }
+
+    .menu-button ion-icon {
+      font-size: 22px;
+      color: #FFFFFF;
+      margin-right: 12px;
+    }
+
+    .menu-button-text {
+      font-size: 17px;
+      font-weight: 500;
+    }
+
+    .section-title {
+      font-size: 14px;
+      color: #12263A;
+      font-weight: bold;
+      margin-top: 15px;
+      margin-bottom: 10px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .distance-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .dist-button {
+      background-color: #12263A;
+      padding: 12px 0;
+      border-radius: 8px;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .dist-button:active {
+      opacity: 0.8;
+    }
+
+    .footer-container {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .footer-text {
+      font-size: 13px;
+      opacity: 0.5;
     }
   </style>
 </head>
 
 <body>
-<body>
+  <div class="menu-overlay">
+    <div class="center-container">
+      <img src="PlanetaryImages/logo.png" alt="Logo" class="logo" />
+
+      <div class="button-container">
+        <!-- Botão Jogo Rápido -->
+        <div class="menu-button" onclick="startGame(1)">
+          <ion-icon name="flash-outline"></ion-icon>
+          <span class="menu-button-text">Jogo Rápido (Real)</span>
+        </div>
+
+        <!-- SECÇÃO DE DISTÂNCIAS -->
+        <div class="section-title">Escolher Escala de Distância:</div>
+        <div class="distance-grid">
+          <button class="dist-button" onclick="startGame(1)">X1</button>
+          <button class="dist-button" onclick="startGame(2)">X2</button>
+          <button class="dist-button" onclick="startGame(3)">X3</button>
+          <button class="dist-button" onclick="startGame(5)">X5</button>
+        </div>
+
+        <!-- Botão Instruções -->
+        <a href="Pages/instructions.html" class="menu-button">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span class="menu-button-text">Instruções</span>
+        </a>
+
+        <!-- Botão About -->
+        <a href="Pages/about.html" class="menu-button">
+          <ion-icon name="help-circle-outline"></ion-icon>
+          <span class="menu-button-text">About</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
   <script>
     window.startGame = function(factor) {
       let page = "Pages/GamePageX1.html";
@@ -40,6 +192,5 @@
       });
     }
   </script>
-</body>
 </body>
 </html>

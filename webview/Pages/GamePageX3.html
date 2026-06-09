@@ -14,6 +14,9 @@
   <link rel="stylesheet" href="../css/styleVH.css" />
 </head>
 <body>
+  
+  <button id="btnClose">✖</button>
+
   <!-- Quiz Modal -->
   <div class="quiz-modal" id="quizModal">
     <div class="quiz-content">
@@ -49,5 +52,16 @@
   <script src="../js/script.js"></script>
   <script src="../js/componentsV2.js"></script>
   <script src="../js/initializerX3.js"></script>
+</body>
+</html>
+Listener('click', function() {
+      // Verifica se está dentro do telemóvel (React Native)
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage("voltar_para_o_menu");
+      } else {
+        window.location.href = "../index.html";
+      }
+    });
+  </script>
 </body>
 </html>
