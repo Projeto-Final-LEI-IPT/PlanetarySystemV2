@@ -19,6 +19,8 @@ const urlsToCache = [
   './data/SystemDataX2.json',
   './data/SystemDataX3.json',
   './data/SystemDataX5.json',
+  './manifest.json',
+  './assets/icon.jpeg',
   // Bibliotecas externas para garantir funcionamento offline total
   'https://aframe.io/releases/1.7.1/aframe.min.js',
   'https://raw.githack.com/AR-js-org/AR.js/3.4.7/three.js/build/ar-threex-location-only.js',
