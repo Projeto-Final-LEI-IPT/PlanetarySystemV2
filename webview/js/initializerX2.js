@@ -10,9 +10,8 @@
 // e cria os planetas na cena
 async function initPlanets() {
   try {
-    // Carrega o ficheiro JSON com os dados do sistema planetário X2
-    const response = await fetch('../data/SystemDataX2.json');
-    const data = await response.json();
+    // Carrega os dados usando a função utilitária (suporta backoffice e fallback local)
+    const data = await loadSystemData('../data/SystemDataX2.json');
 
     // Reduzimos as distâncias em 90% para deixar os planetas mais próximos e alinhados com a escala base
     // data.planets.forEach(p => {

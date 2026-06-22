@@ -68,6 +68,59 @@ function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
   // Retorna a distância em metros
   return R * c;
 }
+// ================================
+// Função: Carregar Dados do Sistema Planetário
+// ================================
+// Carrega os dados dos planetas, quer do backoffice (se fornecido ID nos parâmetros da URL)
+// quer localmente de um ficheiro JSON (caso contrário)
+async function loadSystemData(defaultJsonPath) {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const systemId = urlParams.get('id') || urlParams.get('systemId');
+    const type = urlParams.get('type'); // Ex: 'event' ou 'sistema'
+    const customBackendUrl = urlParams.get('backendUrl');
 
+    if (systemId) {
+      // Determina o URL do backoffice.
+      // Usamos o backendUrl passado por parâmetro ou o padrão localhost
+      let baseUrl = customBackendUrl || 'http://localhost/PlanetarySystemTPSI/PlanetarySystemGo-2026/WebServices/';
+      if (!baseUrl.endsWith('/')) {
+        baseUrl += '/';
+      }
 
+      let fetchUrl;
+      if (type === 'event') {
+        fetchUrl = `${baseUrl}AppServices/getEvent.php?id=${systemId}`;
+      } else if (type === 'json') {
+        fetchUrl = `${baseUrl}FrontEndServices/getSistemaJSON.php?id=${systemId}`;
+      } else {
+        // Por padrão usamos getSystem.php
+        fetchUrl = `${baseUrl}FrontEndServices/getSystem.php?id=${systemId}`;
+      }
 
+      console.log("A carregar dados do sistema do Backoffice:", fetchUrl);
+      const response = await fetch(fetchUrl);
+      if (!response.ok) {
+        throw new Error(`Erro ao carregar dados do backoffice (Status: ${response.status})`);
+      }
+      const resData = await response.json();
+
+      // Se vier do getEvent ou getSistemaJSON, pode vir encapsulado no campo SistemaJSON
+      if (resData.SistemaJSON) {
+        const parsed = typeof resData.SistemaJSON === 'string' ? JSON.parse(resData.SistemaJSON) : resData.SistemaJSON;
+        return parsed;
+      }
+      return resData;
+    }
+  } catch (err) {
+    console.warn("Falha ao carregar do Backoffice, a reverter para dados locais:", err);
+  }
+
+  // Fallback: carregar ficheiro JSON local
+  console.log("A carregar dados locais do ficheiro:", defaultJsonPath);
+  const response = await fetch(defaultJsonPath);
+  if (!response.ok) {
+    throw new Error(`Erro ao carregar ficheiro local (Status: ${response.status})`);
+  }
+  return await response.json();
+}
